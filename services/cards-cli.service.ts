@@ -3,8 +3,12 @@ import {Card} from "../classes/card";
 import {getJSONFileContent, writeFileContent} from "../libs/utils.lib";
 import {CARDS_FILE_NAME, MEMORY_NODES_FILE_NAME, META_FILE} from "../libs/memory-nodes.lib";
 import {writeFileSync} from "fs";
+import {MemoryNode} from "../classes/memory-node";
+import {CardItem, TextCardItem} from "../classes/card-item";
+import {CARDS_SERVICE} from "./contianer";
+import {fillCardItemsArray} from "../libs/cards.lib";
 
-export class CardsService implements ICardsService {
+export class CardsCliService implements ICardsService {
   addCard(node: Card): void {
     const cards = this.getAllCards();
     cards.push(node);
@@ -75,6 +79,20 @@ export class CardsService implements ICardsService {
     writeFileContent(META_FILE, meta);
     return id;
   }
+
+  async createInteractively(node: MemoryNode): Promise<Card | null> {
+    const questionArray: CardItem[] = [];
+    const answerArray: CardItem[] = [];
+    const name = await TextCardItem.createInteractively();
+    if ( !name ) {
+      return null;
+    }
+    questionArray.push(name);
+    await fillCardItemsArray(questionArray, 'Question');
+    await fillCardItemsArray(answerArray, 'Answer');
+    return new Card(this.getNextCardId(), questionArray, answerArray, [node._id]);
+  }
+
 
   private saveAllCards(cards: Card[]) {
     writeFileSync(CARDS_FILE_NAME, JSON.stringify(cards, null, '\t'));

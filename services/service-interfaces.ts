@@ -20,5 +20,7 @@ export interface ICardsService {
   getCardsByIDs(ids: number[]): Card[];
   updateCard(nodeToSave: Card): void;
   deleteCard(card: Card): void;
+  createInteractively(node: MemoryNode): Promise<Card | null>;
+
 }
 

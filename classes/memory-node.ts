@@ -4,7 +4,7 @@ import {
 } from "../libs/memory-nodes.lib";
 import {exit, getUserInput, isInRange, waitForUserInput} from "../libs/utils.lib";
 import chalk, {red} from 'chalk';
-import {MEMORY_NODES_SERVICE} from "../services/contianer";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {Card} from "./card";
 import {COLOR_LightBrown} from "../constants";
 
@@ -128,11 +128,8 @@ export class MemoryNode {
                 continue;
             }
             if ( ['c+', 'card+'].includes(command) ) {
-                const card = await Card.createInteractively();
+                const card = await CARDS_SERVICE.createInteractively(this);
                 console.log(card);
-                const json_part = JSON.stringify(card);
-
-                console.log('2', Card.createFromObj(JSON.parse(json_part)));
                 await waitForUserInput();
             }
 
