@@ -2,6 +2,8 @@ import {CardItem, createCardItemFromObj, TextCardItem} from "./card-item";
 import {getUserInput, waitForUserInput} from "../libs/utils.lib";
 import {COLOR_BLUE, COLOR_LightPink, COLOR_SAPPHIRE_BLUE} from "../constants";
 import chalk from "chalk";
+import {MemoryNode} from "./memory-node";
+import {MEMORY_NODES_SERVICE} from "../services/contianer";
 
 function printCardItemsArray(cardItems: CardItem[], prefix = '') {
   console.log();
@@ -31,11 +33,14 @@ async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
 }
 
 export class Card {
+  _id: number;
   question: CardItem[] = [];
   answer: CardItem[] = [];
+  parentNodes: number[] = [];
   // why not separate name?
   // reverse
-  constructor(question: CardItem[], answer: CardItem[]) {
+  constructor(_id: number, question: CardItem[], answer: CardItem[]) {
+    this._id = _id;
     this.question = question;
     this.answer = answer;
   }
@@ -50,16 +55,23 @@ export class Card {
     questionArray.push(name);
     await fillCardItemsArray(questionArray, 'Question');
     await fillCardItemsArray(answerArray, 'Answer');
-    return new Card(questionArray, answerArray);
+    return new Card(getNextCardId(), questionArray, answerArray);
   }
 
   static createFromObj(obj: any): Card {
     const question = obj.question.map((qObj: TextCardItem) => createCardItemFromObj(qObj));
     const answer = obj.question.map((aObj: TextCardItem) => createCardItemFromObj(aObj));
-    return new Card(question, answer);
+    return new Card(obj._id, question, answer);
   }
 
+  getParentNodes(): MemoryNode[] {
+    return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.parentNodes);
+  }
 
 }
 
+
+function getNextCardId(): number {
+    throw new Error("Function not implemented.");
+}
 

@@ -55,7 +55,7 @@ export class MemoryNode {
     name: string;
     children: number[] = [];
     parents: number[] = [];
-    memoryItems: number[] = [];
+    cards: number[] = [];
     // views versions verse hierarchy
     
     constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[]) {
@@ -63,13 +63,13 @@ export class MemoryNode {
         this.name = name;
         this.children = children;
         this.parents = parents;
-        this.memoryItems = memoryItems;
+        this.cards = memoryItems;
     }
 
     createChildNode() {}
 
     static createFromObj(obj: MemoryNode): MemoryNode {
-        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.memoryItems);
+        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards);
     }
 
     save(): void {

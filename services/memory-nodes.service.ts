@@ -1,13 +1,14 @@
 import {MemoryNode} from "../classes/memory-node";
-import {META_FILE, MEMORY_NODES_FILE_NAME, saveAllMemoryNodes} from "../libs/memory-nodes.lib";
+import {META_FILE, MEMORY_NODES_FILE_NAME} from "../libs/memory-nodes.lib";
 import {getJSONFileContent, writeFileContent} from "../libs/utils.lib";
 import {IMemoryNodesService} from "./service-interfaces";
+import {writeFileSync} from "fs";
 
 export class MemoryNodesCliService implements IMemoryNodesService {
   addMemoryNode(node: MemoryNode): void {
     const nodes = this.getAllMemoryNodes();
     nodes.push(node);
-    saveAllMemoryNodes(nodes);
+    this.saveAllMemoryNodes(nodes);
   }
 
   getAllMemoryNodes(): MemoryNode[] {
@@ -35,7 +36,7 @@ export class MemoryNodesCliService implements IMemoryNodesService {
     const nodes: any[] = getJSONFileContent(MEMORY_NODES_FILE_NAME);
     const index = nodes.findIndex((node: any) => node._id === nodeToSave._id);
     nodes[index] = nodeToSave;
-    saveAllMemoryNodes(nodes);
+    this.saveAllMemoryNodes(nodes);
   }
 
   deleteMemoryNode(memoryNode: MemoryNode): void {
@@ -45,7 +46,7 @@ export class MemoryNodesCliService implements IMemoryNodesService {
 
     // filter tasks
     tasks.splice(index, 1);
-    saveAllMemoryNodes(tasks);
+    this.saveAllMemoryNodes(tasks);
 
     for (let parent of memoryNode.getParents()) {
       parent.children = parent.children.filter(id => id !== memoryNode._id);
@@ -72,6 +73,11 @@ export class MemoryNodesCliService implements IMemoryNodesService {
     writeFileContent(META_FILE, meta);
     return id;
   }
+
+  private saveAllMemoryNodes(nodes: MemoryNode[]) {
+    writeFileSync(MEMORY_NODES_FILE_NAME, JSON.stringify(nodes, null, '\t'));
+  }
+
 
 
 }

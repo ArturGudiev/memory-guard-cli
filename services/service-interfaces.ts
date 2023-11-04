@@ -14,7 +14,7 @@ export interface IMemoryNodesService {
 
 export interface ICardsService {
   addCard(node: Card): void;
-  addNewCardWithNameAndParents(name: string, parents: Card[]): void;
+  addNewCardHandler(name: string, parents: Card[]): void;
   getAllCards(): Card[];
   getCardById(_id: number): Card | null;
   getCardsByIDs(ids: number[]): Card[];

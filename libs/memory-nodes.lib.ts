@@ -8,10 +8,6 @@ export const MEMORY_NODES_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli
 export const CARDS_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\cards.json";
 export const META_FILE = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\meta.json"
 
-export function saveAllMemoryNodes(nodes: MemoryNode[]) {
-  writeFileSync(MEMORY_NODES_FILE_NAME, JSON.stringify(nodes, null, '\t'));
-}
-
 export async function addNewMemoryNodesHandler(parent: MemoryNode): Promise<void> {
   const name = await getUserInput('Enter name');
   MEMORY_NODES_SERVICE.addNewMemoryNodeWithNameAndParents(name, [parent]);
