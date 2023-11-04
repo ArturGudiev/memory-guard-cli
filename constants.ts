@@ -1,0 +1,7 @@
+export const COLOR_SAPPHIRE_BLUE = '#0F52BA'
+export const COLOR_BLUE = '#6497b1'
+export const COLOR_PINK = '#FF8080'
+export const COLOR_WHITE = '#FFFFFF'
+export const COLOR_Yellow = '#FFFFC0'
+export const COLOR_LightBrown = '#FFC080'
+export const COLOR_LightPink = '#8080C0'

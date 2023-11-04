@@ -1,0 +1,22 @@
+{
+  "name": "memory-guard-cli",
+  "version": "1.0.0",
+  "description": "CLI client for Memory Guard",
+  "main": "main.js",
+  "scripts": {
+    "start": "node bld/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Artur Gudiev",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/node": "^20.8.9",
+    "@types/readline-sync": "^1.4.6",
+    "chalk": "^4.1.0",
+    "readline-sync": "^1.4.10"
+  }
+}
