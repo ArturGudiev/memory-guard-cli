@@ -7,6 +7,7 @@ import chalk, {red} from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {Card} from "./card";
 import {COLOR_LightBrown} from "../constants";
+import {printCardsWithTitle} from "../libs/cards.lib";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;
@@ -85,9 +86,10 @@ export class MemoryNode {
     }
 
     print() {
-        console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}\n`));
+        console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} )\n`));
         // printMemoryNodesWithTitle();
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
+        printCardsWithTitle(this.getCards())
         // const children = getNodeById();
         // console.log(`${JSON.stringify(this.childrenByHierarchies)} `);
 
@@ -120,16 +122,21 @@ export class MemoryNode {
             if (command === 'x') {
                 exit();
             }
-            if (command === '+') {
+            if (command === 'n+') {
                 await addNewMemoryNodesHandler(this);
             }
             if (command === 'del') {
                 const deleted = await deleteMemoryNodeHandler(this);
                 continue;
             }
-            if ( ['c+', 'card+'].includes(command) ) {
+            if ( ['+', 'c+', 'card+'].includes(command) ) {
                 const card = await CARDS_SERVICE.createInteractively(this);
-                console.log(card);
+                if (card) {
+                    card.parentNodes = [this._id];
+                    this.cards.push(card._id);
+                    CARDS_SERVICE.addCard(card);
+                    this.save();
+                }
                 await waitForUserInput();
             }
 
@@ -146,6 +153,10 @@ export class MemoryNode {
             // }
         }
 
+    }
+
+    private getCards() {
+        return CARDS_SERVICE.getCardsByIDs(this.cards);
     }
 }
 

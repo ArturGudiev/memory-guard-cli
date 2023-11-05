@@ -80,7 +80,7 @@ export class CardsCliService implements ICardsService {
     return id;
   }
 
-  async createInteractively(node: MemoryNode): Promise<Card | null> {
+  async createInteractively(): Promise<Card | null> {
     const questionArray: CardItem[] = [];
     const answerArray: CardItem[] = [];
     const name = await TextCardItem.createInteractively();
@@ -90,7 +90,7 @@ export class CardsCliService implements ICardsService {
     questionArray.push(name);
     await fillCardItemsArray(questionArray, 'Question');
     await fillCardItemsArray(answerArray, 'Answer');
-    return new Card(this.getNextCardId(), questionArray, answerArray, [node._id]);
+    return new Card(this.getNextCardId(), questionArray, answerArray, []);
   }
 
 

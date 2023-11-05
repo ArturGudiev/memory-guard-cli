@@ -1,14 +1,17 @@
 import {CardItem, createCardItemFromObj, TextCardItem} from "./card-item";
 import {MemoryNode} from "./memory-node";
-import {MEMORY_NODES_SERVICE} from "../services/contianer";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 
 export class Card {
   _id: number;
   question: CardItem[] = [];
   answer: CardItem[] = [];
   parentNodes: number[] = [];
-  // why not separate name?
-  // reverse
+  used = 0;
+  needed = 0;
+  count = 0;
+  reverseCount?: number;
+
   constructor(_id: number, question: CardItem[], answer: CardItem[], parentNodes: number[]) {
     this._id = _id;
     this.question = question;
@@ -26,4 +29,17 @@ export class Card {
     return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.parentNodes);
   }
 
+  update() {
+    CARDS_SERVICE.updateCard(this);
+  }
+
+  printQuestion() {
+    this.question.forEach((cardItem: CardItem) => {
+      console.log(cardItem.getString());
+    });
+  }
+
+  printStats() {
+    console.log(`COUNT: ${this.count}\n`)
+  }
 }

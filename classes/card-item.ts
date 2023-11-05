@@ -16,8 +16,9 @@ export enum CardItemEnum {
 
 export interface CardItem {
   readonly type: CardItemEnum;
-  getOneLineRepresentation(): string;
-
+  getOneLineCardItemRepresentation(): string;
+  getOneLineText(): string;
+  getString(): string;
 }
 
 export class TextCardItem implements CardItem {
@@ -29,8 +30,16 @@ export class TextCardItem implements CardItem {
     this.text = text;
   }
 
-  getOneLineRepresentation(): string {
+  getOneLineCardItemRepresentation(): string {
     return 'TEXT \t ' + this.text.split('\n')[0];
+  }
+
+  getOneLineText(): string {
+    return this.text.split('\n')[0];
+  }
+
+  getString(): string {
+    return this.text;
   }
 
   static createFromObj(obj: any) {

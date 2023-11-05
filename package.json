@@ -17,6 +17,7 @@
     "@types/node": "^20.8.9",
     "@types/readline-sync": "^1.4.6",
     "chalk": "^4.1.0",
-    "readline-sync": "^1.4.10"
+    "readline-sync": "^1.4.10",
+    "rxjs": "^7.8.1"
   }
 }
