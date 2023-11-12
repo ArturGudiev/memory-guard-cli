@@ -1,11 +1,7 @@
-import {
-    addNewMemoryNodesHandler,
-    printMemoryNodesWithTitle,
-} from "../libs/memory-nodes.lib";
-import {exit, getUserInput, isInRange, waitForUserInput} from "../libs/utils.lib";
-import chalk, {red} from 'chalk';
+import {addNewMemoryNodesHandler, printMemoryNodesWithTitle, selectCards,} from "../libs/memory-nodes.lib";
+import {exit, getUserInput, isInRange, removeFirstArgument, waitForUserInput} from "../libs/utils.lib";
+import chalk from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
-import {Card} from "./card";
 import {COLOR_LightBrown} from "../constants";
 import {printCardsWithTitle} from "../libs/cards.lib";
 
@@ -100,6 +96,7 @@ export class MemoryNode {
             console.clear();
             this.print();
             const command = await getUserInput('Enter a command');
+            const commandArgs = removeFirstArgument(command.split(' '));
             if (!command) {
                 continue;
             }
@@ -138,6 +135,10 @@ export class MemoryNode {
                     this.save();
                 }
                 await waitForUserInput();
+            }
+            if (['sel', 's'].includes(command)) {
+                const cards = this.getCards();
+                const selectedCards = selectCards(cards, commandArgs);
             }
 
 

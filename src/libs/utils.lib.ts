@@ -34,3 +34,19 @@ export function getJSONFileContent(path: string): any {
   const content = readFileSync(path);
   return JSON.parse(content.toString());
 }
+
+export function tab(str: string, num = 1) {
+  return str.split('\n').map(line => `${'\t'.repeat(num)}${line}`).reduce((a, b) => `${a}\n${b}`, '');
+}
+
+export function removeFirstArgument(args: any[]) {
+  const newArray = [...args];
+  newArray.splice(0, 1);
+  return newArray;
+}
+
+
+
+// export const getRandomNumber() => {
+//
+// }

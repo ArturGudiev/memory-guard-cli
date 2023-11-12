@@ -90,7 +90,10 @@ export class CardsCliService implements ICardsService {
     questionArray.push(name);
     await fillCardItemsArray(questionArray, 'Question');
     await fillCardItemsArray(answerArray, 'Answer');
-    return new Card(this.getNextCardId(), questionArray, answerArray, []);
+    return new Card(this.getNextCardId(), questionArray, answerArray, [], 0, 0, 0,
+      {
+        reverseCount: 0
+      });
   }
 
 

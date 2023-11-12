@@ -1,14 +1,12 @@
 import readline from "readline";
 import {firstValueFrom, fromEvent, map, Observable, Subject, take, takeUntil} from "rxjs";
 
-const getKeyPressedObservable = (): [Observable<any>, Subject<any>] => {
-  const destroy$ = new Subject();
+const getKeyPressedObservable = (): [Observable<any>, Subject<void>] => {
+  const destroy$ = new Subject<void>();
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
-
-
 
   destroy$.pipe(take(1)).subscribe(() => {
     rl.close();
@@ -23,11 +21,18 @@ const getKeyPressedObservable = (): [Observable<any>, Subject<any>] => {
 
 
 
-export async function reactOnKeysPressed(keyHandlers: {[key: string]: VoidFunction}, exitKeys = ['x'] ) {
+export async function reactOnKeysPressed(
+  keyHandlers: {[key: string]: VoidFunction},
+  exitKeys = ['x'],
+  exitSubject= new Subject<void>()) {
   const [keyPressed$, destroy$] = getKeyPressedObservable();
+  exitSubject
+    .pipe(take(1))
+    .subscribe(() => destroy$.next());
+
   keyPressed$.subscribe(val => {
     if (exitKeys.includes(val)) {
-      destroy$.next({});
+      destroy$.next();
     }
     if (['b'].includes(val)) {
       console.clear();
@@ -35,6 +40,8 @@ export async function reactOnKeysPressed(keyHandlers: {[key: string]: VoidFuncti
     }
     if (keyHandlers[val] !== undefined) {
       keyHandlers[val]();
+    } else {
+      console.log('some key', val);
     }
   })
   return firstValueFrom(destroy$);

@@ -1,8 +1,8 @@
 import {MemoryNode} from "../classes/memory-node"
-import {writeFileSync} from 'fs';
 import chalk from 'chalk';
 import {getUserInput} from "./utils.lib";
 import {MEMORY_NODES_SERVICE} from "../services/contianer";
+import {Card} from "../classes/card";
 
 export const MEMORY_NODES_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\memory-nodes.json";
 export const CARDS_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\cards.json";
@@ -23,11 +23,12 @@ export function printMemoryNodes(nodes: MemoryNode[]) {
 
 export function printMemoryNodesWithTitle(nodes: MemoryNode[]): void {
   if (nodes.length > 0) {
-    console.log(('\t------Memory Nodes------'));
+    console.log(('\t------ Memory Nodes ------'));
     printMemoryNodes(nodes);
   }
 }
 
 
+export function selectCards(cards: Card[], commandArgs: string[]) {
 
-
+}
