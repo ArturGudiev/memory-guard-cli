@@ -4,32 +4,33 @@
   "description": "CLI client for Memory Guard",
   "main": "main.js",
   "scripts": {
-    "start": "node bld/main.js",
-    "test": "karma start karma.conf.js"
+    "start": "npx ts-node src/main.ts",
+    "start2": "npx ts-node  src/main.ts",
+    "test": "jest",
+    "test:watch": "jest --watch --verbose",
+    "test2": "npm run test:watch",
+    "test3": "npm run test:watch -- --verbose --testNamePatterns=\"filterCommandTypeRegexes\"",
+    "test:coverage": "jest --coverage"
   },
   "author": "Artur Gudiev",
   "license": "ISC",
   "devDependencies": {
-    "jasmine-core": "^5.1.1",
-    "karma": "^6.4.2",
-    "karma-chrome-launcher": "^3.2.0",
-    "karma-firefox-launcher": "^2.1.2",
-    "karma-jasmine": "^5.1.0",
-    "karma-typescript": "^5.5.4",
+    "@types/jest": "^29.5.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
     "@types/argparse": "^2.0.13",
     "@types/chalk": "^2.2.0",
-    "@types/jasmine": "^5.1.2",
-    "@types/karma": "^6.3.7",
     "@types/lodash": "^4.14.200",
     "@types/node": "^20.8.9",
     "@types/readline-sync": "^1.4.6",
     "argparse": "^2.0.1",
     "chalk": "^4.1.0",
-    "jasmine": "^5.1.0",
+    "console-table-printer": "^2.11.2",
     "lodash": "^4.17.21",
+    "print-tree": "^0.1.5",
     "readline-sync": "^1.4.10",
     "rxjs": "^7.8.1"
   }

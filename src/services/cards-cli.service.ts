@@ -5,13 +5,13 @@ import {CARDS_FILE_NAME, MEMORY_NODES_FILE_NAME, META_FILE} from "../libs/memory
 import {writeFileSync} from "fs";
 import {MemoryNode} from "../classes/memory-node";
 import {CardItem, TextCardItem} from "../classes/card-item";
-import {CARDS_SERVICE} from "./contianer";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
 
 export class CardsCliService implements ICardsService {
-  addCard(node: Card): void {
+  addCard(card: Card): void {
     const cards = this.getAllCards();
-    cards.push(node);
+    cards.push(card);
     this.saveAllCards(cards);
   }
 
@@ -92,9 +92,30 @@ export class CardsCliService implements ICardsService {
     await fillCardItemsArray(answerArray, 'Answer');
     return new Card(this.getNextCardId(), questionArray, answerArray, [], 0, 0, 0,
       {
-        reverseCount: 0
+        reverseCount: 0,
+        usage: 'common'
       });
   }
+
+  /**
+   *
+   * @param question
+   * @param answer
+   * @param parentNode
+   */
+  createFromText(question: string, answer: string, parentNode: number): Card | null {
+    const questionArray: CardItem[] = [new TextCardItem(question)];
+    const answerArray: CardItem[] = [new TextCardItem(answer)];
+    if ( MEMORY_NODES_SERVICE.nodeExists(parentNode) ) {
+      return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode], 0, 0, 0,
+        {
+          reverseCount: 0,
+          usage: 'common'
+        });
+    }
+    return null;
+  }
+
 
 
   private saveAllCards(cards: Card[]) {

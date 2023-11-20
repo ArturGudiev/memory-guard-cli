@@ -6,7 +6,9 @@
       "strict": true,
       "moduleResolution": "node",
       "sourceMap": true,
-      "outDir": "bld"
+      "outDir": "bld",
     },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["node_modules"]
 //    "lib": ["es2016"]
   }

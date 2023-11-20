@@ -5,6 +5,8 @@ import {IQuizState} from "../libs/quiz.lib";
 import chalk from "chalk";
 import {tab} from "../libs/utils.lib";
 
+type UsageType = 'active' | 'passive' | 'transitional' | 'common';
+
 export class Card {
   _id: number;
   question: CardItem[] = [];
@@ -14,9 +16,14 @@ export class Card {
   needed = 0;
   count = 0;
   reverseCount?: number;
+  usage: UsageType = 'common'
 
   constructor(_id: number, question: CardItem[], answer: CardItem[], parentNodes: number[],
-              count: number, needed: number, used: number, others: any) {
+              count: number, needed: number, used: number,
+              others: {
+                reverseCount: number,
+                usage: UsageType
+              }) {
     this._id = _id;
     this.question = question;
     this.answer = answer;
@@ -26,6 +33,9 @@ export class Card {
     this.count = count;
     if (others.reverseCount !== undefined) {
       this.reverseCount = others.reverseCount;
+    }
+    if (others.usage !== undefined) {
+      this.usage = others.usage;
     }
   }
 
@@ -49,8 +59,14 @@ export class Card {
   }
 
   decreaseCount(): void {
-    this.count -= 1;
+    if (this.count > 0) {
+      this.count -= 1;
+    }
     this.update();
+  }
+
+  getOneLineQuestion() {
+    return this.question[0].getOneLineText();
   }
 
   printQuestion() {
@@ -65,6 +81,7 @@ export class Card {
     this.answer.forEach((cardItem: CardItem) => {
       console.log(tab(cardItem.getString(), 2));
     });
+    console.log();
   }
 
 

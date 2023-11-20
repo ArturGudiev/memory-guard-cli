@@ -5,6 +5,11 @@ import {IMemoryNodesService} from "./service-interfaces";
 import {writeFileSync} from "fs";
 
 export class MemoryNodesCliService implements IMemoryNodesService {
+
+  nodeExists(id: number): boolean {
+    const node = this.getMemoryNodeById(id);
+    return node !== null;
+  }
   addMemoryNode(node: MemoryNode): void {
     const nodes = this.getAllMemoryNodes();
     nodes.push(node);

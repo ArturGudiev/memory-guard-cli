@@ -1,4 +1,4 @@
-import {getUserInput} from "../libs/utils.lib";
+import {getInputFromEditor, getUserInput} from "../libs/utils.lib";
 
 
 export function createCardItemFromObj(obj: CardItem): TextCardItem | null {
@@ -46,9 +46,14 @@ export class TextCardItem implements CardItem {
     return new TextCardItem(obj.text);
   }
 
-  static async createInteractively(): Promise<TextCardItem | null> {
+  static async createInteractively(useEditor = false): Promise<TextCardItem | null> {
     try {
-      let text = await getUserInput('Enter card item\'s text');
+      let text: string;
+      if (useEditor) {
+        text = await getInputFromEditor('Enter text item');
+      } else {
+        text = await getUserInput('Enter card item\'s text');
+      }
       if (text === '') {
         return null;
       }

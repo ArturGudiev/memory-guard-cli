@@ -1,17 +1,16 @@
 import {CardItem, TextCardItem} from "../classes/card-item";
-import {getUserInput} from "./utils.lib";
+import {fMap, getUserInput, newline, printWithoutNewLine} from "./utils.lib";
 import chalk from "chalk";
-import {MemoryNode} from "../classes/memory-node";
-import {printMemoryNodes} from "./memory-nodes.lib";
 import {Card} from "../classes/card";
+import {Table} from 'console-table-printer';
 
 export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
   while (true) {
     console.clear();
     printCardItemsArray(cardItems, prefix);
     const command = await getUserInput('Enter a question command');
-    if (command === 't+') {
-      const textItem = await TextCardItem.createInteractively();
+    if (command.startsWith('t+') ) {
+      const textItem = await TextCardItem.createInteractively(command === 't+!');
       if (textItem !== null) {
         cardItems.push(textItem);
       }
@@ -27,12 +26,41 @@ export function printCardsWithTitle(cards: Card[]): void {
     console.log(('\t------ Cards ------'));
     console.log();
     cards.forEach((card: Card, index: number) => {
-      console.log(chalk.yellowBright(`\t ${index + 1}. ${card.question[0].getOneLineText()}`));
+      // console.log(chalk.yellowBright(`\t ${index + 1}. ${card.question[0].getOneLineText()}`));
+      printWithoutNewLine(chalk.yellowBright(`\t ${index + 1}. ${card.question[0].getOneLineText()}`));
     })
-    console.log();
+    newline(2);
   }
 }
 
+export interface IQuantityStatsItem {
+  count: number;
+  quantity: number;
+}
+
+export function printStats(cards: Card[]): void {
+  const originalCountsArr = fMap(cards, 'count');
+  if ( cards.length > 0 ) {
+    const countsSet = new Set(originalCountsArr);
+    const countsArr = [...countsSet].sort((x, y) => x - y);
+    const stats: IQuantityStatsItem[] = [];
+    const p = new Table();
+    for (const count of countsArr) {
+      // stats.push({
+      p.addRow({
+        count,
+        quantity: originalCountsArr
+          .reduce((elCount, el) => el === count ? elCount + 1 : elCount, 0)
+      });
+    }
+    p.printTable();
+    // console.log(stats);
+    // console.log(stats);
+    // console.table(stats.map(({count, quantity}) =>
+    //   ({Count: count, Quantity: quantity})));
+    // console.log('counts 2', countsArr);
+  }
+}
 
 export function printCardItemsArray(cardItems: CardItem[], prefix = '') {
   console.log();

@@ -26,9 +26,14 @@ export async function testCards(cards: Card[], options: ITestOptions = {rightAns
     return cards.filter(card => !isCardFinished(card));
   }
 
-  const getNextUnfinishedCard = () => getRandomArrayElement<Card>(
-    getUnfinishedCards()
-      .filter(card => card !== previousCard));
+  const getNextUnfinishedCard = () => {
+    const unfinishedCards = getUnfinishedCards();
+    return getRandomArrayElement<Card>(
+      unfinishedCards.length > 1
+        ? unfinishedCards.filter(card => card !== previousCard)
+        : unfinishedCards
+    );
+  };
   const getQuizState = (card: Card): IQuizState => ({
     leftCardsNumber: getUnfinishedCards().length,
     originalCount: originalCounts[card._id]

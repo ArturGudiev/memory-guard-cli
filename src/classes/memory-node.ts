@@ -1,9 +1,16 @@
-import {addNewMemoryNodesHandler, printMemoryNodesWithTitle, selectCards,} from "../libs/memory-nodes.lib";
-import {exit, getUserInput, isInRange, removeFirstArgument, waitForUserInput} from "../libs/utils.lib";
+import {
+    addNewMemoryNodesHandler,
+    printMemoryNodesWithTitle,
+    printParentsPath,
+    selectCards,
+} from "../libs/memory-nodes.lib";
+import {exit, getUserInput, isInRange, removeFirstArgument, removeFirstWord, waitForUserInput} from "../libs/utils.lib";
 import chalk from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {COLOR_LightBrown} from "../constants";
-import {printCardsWithTitle} from "../libs/cards.lib";
+import {printCardsWithTitle, printStats} from "../libs/cards.lib";
+import {quiz, testCards} from "../libs/quiz.lib";
+import {ArgumentParser} from "argparse";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;
@@ -82,9 +89,10 @@ export class MemoryNode {
     }
 
     print() {
+        printParentsPath(this);
         console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} )\n`));
-        // printMemoryNodesWithTitle();
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
+        printStats(this.getCards());
         printCardsWithTitle(this.getCards())
         // const children = getNodeById();
         // console.log(`${JSON.stringify(this.childrenByHierarchies)} `);
@@ -95,8 +103,9 @@ export class MemoryNode {
         while (true) {
             console.clear();
             this.print();
-            const command = await getUserInput('Enter a command');
-            const commandArgs = removeFirstArgument(command.split(' '));
+            const commandRaw = await getUserInput('Enter a command');
+            const command = commandRaw.split(' ')[0];
+            const commandArgs = removeFirstArgument(commandRaw.split(' '));
             if (!command) {
                 continue;
             }
@@ -115,9 +124,16 @@ export class MemoryNode {
                     continue;
                 }
                 await goToParentHandler(this);
+                continue;
             }
             if (command === 'x') {
                 exit();
+            }
+            if (command === 'nav') {
+                const id = +commandArgs[0];
+                const node = MEMORY_NODES_SERVICE.getMemoryNodeById(id);
+                node?.interactive();
+                continue;
             }
             if (command === 'n+') {
                 await addNewMemoryNodesHandler(this);
@@ -139,9 +155,32 @@ export class MemoryNode {
             if (['sel', 's'].includes(command)) {
                 const cards = this.getCards();
                 const selectedCards = selectCards(cards, commandArgs);
+                console.log('============== ', selectedCards.length);
+                console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
+                const additionalCommand = await getUserInput('Enter the command');
+                if (additionalCommand.startsWith('q') || additionalCommand.startsWith('quiz')) {
+                    const additionalCommandArgsString = removeFirstWord(additionalCommand);
+
+                    const parser = new ArgumentParser({
+                        description: 'Argparse example'
+                    });
+                    parser.add_argument('--count', 'count', {type: 'int'});
+                    const args = parser.parse_args(additionalCommandArgsString.split(' '));
+                    const options: any | null = {
+                        rightAnswersQuantity: 5
+                    };
+                    if (args.count) {
+                        options.rightAnswersQuantity = args.count;
+                    }
+                    await testCards(selectedCards, options);
+                }
             }
+            if ( ['sc'].includes(command) ) {
 
-
+            }
+            if (['x'].includes(command)) {
+                exit();
+            }
             // if (command[0] === 'h') {
             //     const secondPart = command.substring(1);
             //     if (Number.isInteger(Number(secondPart))) {
