@@ -1,4 +1,4 @@
-import { filterCommandTypeRegexes } from "./memory-nodes.lib";
+import {clauseRegexes, filterCommandTypeRegexes} from "./memory-nodes.lib";
 
 describe('filterCommandTypeRegexes', function() {
 
@@ -122,3 +122,23 @@ describe('filterCommandTypeRegexes', function() {
 
   // should parse 2 filter conditions
 });
+
+describe('clause regextes', () => {
+  it('should be true for simple limit expression', () => {
+    const originalString = 'limit 25'
+    const match = clauseRegexes['limit'].exec(originalString);
+    expect(match).toBeTruthy();
+  });
+
+  it('should correctly extract expression parts', () => {
+    const restString = ' rest string';
+    const exp = 'limit 25' + restString;
+    const match = clauseRegexes['limit'].exec(exp);
+    expect(match).toBeTruthy();
+    if (match) {
+      expect(match[0]).toBe(exp);
+      expect(match[1]).toBe('25');
+      expect(match[2]).toBe(restString);
+    }
+  });
+})

@@ -1,54 +1,44 @@
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./services/contianer";
+import {MEMORY_NODES_SERVICE} from "./services/contianer";
 import {ArgumentParser} from "argparse";
-import {getJSONFileContent} from "./libs/utils.lib";
-import {Subject} from "rxjs";
-import {reactOnKeysPressed} from "./libs/interaction.lib";
-import {addTextCardToNode} from "./libs/memory-nodes.lib";
+import {addTextCardToNode, parseExpressions} from "./libs/memory-nodes.lib";
+import {moveCardsFromOneNodeToAnother} from "./libs/data-modifications.lib";
+import {Card, UsageType} from "./classes/card";
+import {waitForUserInput} from "./libs/utils.lib";
+
+function setUsageTypeForAllCardsInNode(nodeId: number, usageType: UsageType) {
+  const node = MEMORY_NODES_SERVICE.getMemoryNodeById(nodeId);
+  if (node) {
+    const cards = node.getCards();
+    cards.forEach((card: Card) => {
+      card.usageType = usageType;
+      card.save();
+    })
+  }
+}
 
 async function temp() {
-  const arr = getJSONFileContent("C:\\Data\\Lingvo-Practice\\raw_words\\iron.json");
-  const newArr: any[] = arr.filter((el: any) => el.times === 0);
-  console.log(newArr.length);
-  let last = 100;
-  for (const [i, el] of newArr.entries()){
-    if (i <= last) {
-      continue;
-    }
-    console.clear();
-    console.log(i, el.name, el.translation);
-    let answerWasShowed = false;
-    const exitSubject = new Subject<void>();
-    await reactOnKeysPressed(
-      {
-        'a': () => {
-          console.log('active', el)
-          addTextCardToNode(el.name, el.translation, 23);
-          exitSubject.next();
-        },
-        'p': () => {
-          console.log('passive', el);
-          addTextCardToNode(el.name, el.translation, 24);
-          exitSubject.next();
-        },
-        't': () => {
-          console.log('transitional', el);
-          addTextCardToNode(el.name, el.translation, 25);
-          exitSubject.next();
-        }
-      },
-      ['x'],
-      exitSubject
-    );
-    // 23. Active
-    // 24. Passive
-    // 25. Transitional
-
-
-
-  }
-  // newArr.forEach((el: any, i: number) => {
-  //
+  // setUsageTypeForAllCardsInNode(25, 'transitional')
+  // moveCardsFromOneNodeToAnother(25, 22);
+  // const [a, b] = parseExpressions('count in [0;5] limit 25');
+  // console.log(a);
+  // console.log(b);
+  // await waitForUserInput();
+  // const node = MEMORY_NODES_SERVICE.getMemoryNodeById(22);
+  // await node?.interactive();
+  // const parser = new ArgumentParser({
+  //   description: 'Argparse example'
   // });
+  // parser.add_argument('--count', {type: 'int', default: 5});
+  // const args = parser.parse_args([]);
+  // const options: any | null = {
+  //   rightAnswersQuantity: 5
+  // };
+  // if (args.count ){
+  //   console.log('YES');
+  // } else {
+  //   console.log('No');
+  // }
+  await MEMORY_NODES_SERVICE.getMemoryNodeById(14)?.interactive();
 }
 
 

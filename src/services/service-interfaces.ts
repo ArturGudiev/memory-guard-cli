@@ -19,11 +19,12 @@ export interface ICardsService {
   addCard(card: Card): void;
   addNewCardHandler(name: string, parents: Card[]): void;
   getAllCards(): Card[];
+  saveAllCards?(card: Card[]): void;
   getCardById(_id: number): Card | null;
   getCardsByIDs(ids: number[]): Card[];
   updateCard(nodeToSave: Card): void;
   deleteCard(card: Card): void;
-  createInteractively(node: MemoryNode): Promise<Card | null>;
+  createInteractively(node: MemoryNode, options: any): Promise<Card | null>;
   createFromText(question: string, answer: string, parentNode: number): Card | null;
 }
 

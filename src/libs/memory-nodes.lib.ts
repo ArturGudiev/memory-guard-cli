@@ -31,15 +31,38 @@ export function printMemoryNodesWithTitle(nodes: MemoryNode[]): void {
 
 
 type IFilterCommandType = '<' | '<=' | '>' | '>=' | '==' | '===' | 'in';
+type ClauseType = 'limit';
 export const filterCommandTypeRegexes: {[key in IFilterCommandType]: RegExp} = {
-  '<': /(\s*(\w*)\s*<\s*(\d*)\s*)(.*)/,
-  '<=': /(\s*(\w*)\s*<=\s*(\d*)\s*)(.*)/,
-  '>': /(\s*(\w*)\s*>\s*(\d*)\s*)(.*)/,
-  '>=': /(\s*(\w*)\s*>=\s*(\d*)\s*)(.*)/,
-  '==': /(\s*(\w*)\s*==\s*(\d*)\s*)(.*)/,
-  '===': /(\s*(\w*)\s*===\s*(\d*)\s*)(.*)/,
-  'in': /(\s*(\w*)\s*in\s*([\[|\(])\s*(\d+)\s*;\s*(\d+)\s*([\]|\)])\s*)(.*)/,
+  '<': /^(\s*(\w*)\s*<\s*(\d*)\s*)(.*)/,
+  '<=': /^(\s*(\w*)\s*<=\s*(\d*)\s*)(.*)/,
+  '>': /^(\s*(\w*)\s*>\s*(\d*)\s*)(.*)/,
+  '>=': /^(\s*(\w*)\s*>=\s*(\d*)\s*)(.*)/,
+  '==': /^(\s*(\w*)\s*==\s*(\d*)\s*)(.*)/,
+  '===': /^(\s*(\w*)\s*===\s*(\d*)\s*)(.*)/,
+  'in': /^(\s*(\w*)\s*in\s*([\[|\(])\s*(\d+)\s*;\s*(\d+)\s*([\]|\)])\s*)(.*)/,
 };
+
+export const clauseRegexes: {[key in ClauseType]: RegExp} = {
+  'limit': /^\s*limit\s*(\d+)(.*)/,
+};
+
+
+export interface IClauseExpression {
+  apply: <T = unknown>(arr: T[]) => T[]
+}
+
+export class LimitClauseExpression implements IClauseExpression {
+  limit: number;
+
+  constructor(limit: number) {
+    this.limit = limit;
+  }
+
+  apply<T>(arr: T[]): T[] {
+    return arr.slice(0, this.limit);
+  }
+
+}
 
 export interface IFilterExpression {
   // type: IFilterCommandType
@@ -61,11 +84,36 @@ export class InFilterExpression implements IFilterExpression {
   }
 }
 
+export function hasNextClauseExpression(originalCommandString: string): boolean {
+  const limitMatch = clauseRegexes['limit'].exec(originalCommandString);
+  if (limitMatch) {
+    return true;
+  }
+  return false;
+}
+
+export function parseNextClauseExpression(originalCommand: string): [IClauseExpression, string] | [null, string] {
+  const limitCommandMatch = clauseRegexes['limit'].exec(originalCommand);
+  if ( limitCommandMatch ) {
+    const limit = +limitCommandMatch[1];
+    return [new LimitClauseExpression(limit), limitCommandMatch[2]];
+  }
+  return [null, originalCommand];
+}
+
+export function hasNextFilterExpression(originalCommandString: string): boolean {
+  const inCommandMatch = filterCommandTypeRegexes['in'].exec(originalCommandString);
+  if (inCommandMatch) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Возвращает tuple IFilterExpression
  * @param originalCommandString
  */
-export function parseNextFilterExpression(originalCommandString: string): [IFilterExpression, string] | [] {
+export function parseNextFilterExpression(originalCommandString: string): [IFilterExpression, string] | [null, string] {
   const inCommandMatch = filterCommandTypeRegexes['in'].exec(originalCommandString);
   if ( inCommandMatch ) {
     const subject = inCommandMatch[2];
@@ -78,34 +126,48 @@ export function parseNextFilterExpression(originalCommandString: string): [IFilt
       rightBorder === ']' ? end : end - 1
     ]), inCommandMatch[7]];
   }
-  throw new Error('Here');
+  return [null, originalCommandString];
 }
 // todo you can add () and or 
-export function parseFilterExpressions(originalCommand: string): IFilterExpression[] {
-  const conditions: IFilterExpression[] = [];
+export function parseExpressions(originalCommand: string): [IFilterExpression[], IClauseExpression[]] {
+  const filterExpressions: IFilterExpression[] = [];
+  const clauseExpressions: IClauseExpression[] = [];
   while (originalCommand !== '') {
-    const [command, restString] = parseNextFilterExpression(originalCommand);
-    if (restString !== undefined) {
-      originalCommand = restString;
-    }
+    if (hasNextFilterExpression(originalCommand)) {
+      const [command, restString] = parseNextFilterExpression(originalCommand);
+      if (restString !== undefined) {
+        originalCommand = restString;
+      }
 
-    if (command) {
-      conditions.push(command);
+      if (command) {
+        filterExpressions.push(command);
+      }
+    }
+    if (hasNextClauseExpression(originalCommand)) {
+      const [command, restString] = parseNextClauseExpression(originalCommand);
+      if (restString !== undefined) {
+        originalCommand = restString;
+      }
+
+      if (command) {
+        clauseExpressions.push(command);
+      }
     }
   }
-  return conditions;
-}
-
-export function parseFilterCommands(argsString: string) {
-
+  return [filterExpressions, clauseExpressions];
 }
 
 export function selectCards(cards: Card[], commandArgs: string[]): Card[] {
   const argsString = commandArgs.join(' ');
-  const filterExpressions: IFilterExpression[] = parseFilterExpressions(argsString);
-  return cards
+  const [filterExpressions, clauseExpressions]: [IFilterExpression[], IClauseExpression[]]
+    = parseExpressions(argsString);
+  let cardsToReturn = cards
     .filter(card => filterExpressions
       .every(exp => exp.isTrueForObject(card)));
+  for (const clauseExpression of clauseExpressions) {
+    cardsToReturn = clauseExpression.apply<Card>(cardsToReturn);
+  }
+  return cardsToReturn;
 }
 
 export function printParentsPath(node: MemoryNode) {
@@ -117,10 +179,13 @@ export function printParentsPath(node: MemoryNode) {
 }
 
 export function getParentsPath(obj: MemoryNode): string[] {
-  const parentsPath: string[] = [obj.name];
+  const getNodeDescriptionInParentsPath = (node: MemoryNode) => `${node._id} ` + node.name
+  const parentsPath: string[] = [getNodeDescriptionInParentsPath(obj)];
+
   let parent: MemoryNode | null = obj.getParents()[0];
+
   while ( parent ) {
-    parentsPath.push(`${parent._id} ` + parent.name);
+    parentsPath.push(getNodeDescriptionInParentsPath(parent));
     parent = parent.getParents().length > 0 ? parent.getParents()[0] : null;
   }
   return parentsPath.reverse();

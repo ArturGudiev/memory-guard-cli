@@ -11,6 +11,7 @@ import {COLOR_LightBrown} from "../constants";
 import {printCardsWithTitle, printStats} from "../libs/cards.lib";
 import {quiz, testCards} from "../libs/quiz.lib";
 import {ArgumentParser} from "argparse";
+import {UsageType} from "./card";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;
@@ -88,21 +89,23 @@ export class MemoryNode {
         return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.parents);
     }
 
-    print() {
+    print(usageType: UsageType | null = null) {
+        const cards = this.getCards(usageType);
         printParentsPath(this);
-        console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} )\n`));
+        console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} [${cards.length}] ) \t Usage: ${usageType}\n`));
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
-        printStats(this.getCards());
-        printCardsWithTitle(this.getCards())
+        printStats(cards);
+        printCardsWithTitle(cards)
         // const children = getNodeById();
         // console.log(`${JSON.stringify(this.childrenByHierarchies)} `);
 
     }
 
     async interactive() {
+        let usageType: UsageType | null = null;
         while (true) {
             console.clear();
-            this.print();
+            this.print(usageType);
             const commandRaw = await getUserInput('Enter a command');
             const command = commandRaw.split(' ')[0];
             const commandArgs = removeFirstArgument(commandRaw.split(' '));
@@ -143,17 +146,16 @@ export class MemoryNode {
                 continue;
             }
             if ( ['+', 'c+', 'card+'].includes(command) ) {
-                const card = await CARDS_SERVICE.createInteractively(this);
+                const card = await CARDS_SERVICE.createInteractively(this, { usageType });
                 if (card) {
-                    card.parentNodes = [this._id];
-                    this.cards.push(card._id);
                     CARDS_SERVICE.addCard(card);
+                    this.cards.push(card._id);
                     this.save();
                 }
                 await waitForUserInput();
             }
             if (['sel', 's'].includes(command)) {
-                const cards = this.getCards();
+                const cards = this.getCards(usageType);
                 const selectedCards = selectCards(cards, commandArgs);
                 console.log('============== ', selectedCards.length);
                 console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
@@ -164,7 +166,7 @@ export class MemoryNode {
                     const parser = new ArgumentParser({
                         description: 'Argparse example'
                     });
-                    parser.add_argument('--count', 'count', {type: 'int'});
+                    parser.add_argument('--count', {type: 'int'});
                     const args = parser.parse_args(additionalCommandArgsString.split(' '));
                     const options: any | null = {
                         rightAnswersQuantity: 5
@@ -173,6 +175,29 @@ export class MemoryNode {
                         options.rightAnswersQuantity = args.count;
                     }
                     await testCards(selectedCards, options);
+                }
+            }
+            if (['us', 'usage'].includes(command)) {
+                if (commandArgs.length === 0) {
+                    continue;
+                }
+                switch (commandArgs[0]) {
+                    case 'a':
+                        usageType = 'active';
+                        break;
+                    case 'p':
+                        usageType = 'passive';
+                        break;
+                    case 't':
+                        usageType = 'transitional';
+                        break;
+                    case 'c':
+                    case 'd':
+                        usageType = 'common';
+                        break;
+                    case 'n':
+                        usageType = null;
+                        break;
                 }
             }
             if ( ['sc'].includes(command) ) {
@@ -195,8 +220,9 @@ export class MemoryNode {
 
     }
 
-    private getCards() {
-        return CARDS_SERVICE.getCardsByIDs(this.cards);
+    getCards(usage: UsageType | null = null) {
+        const cards = CARDS_SERVICE.getCardsByIDs(this.cards);
+        return usage === null ? cards : cards.filter(card => card.usageType === usage);
     }
 }
 

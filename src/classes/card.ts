@@ -5,7 +5,7 @@ import {IQuizState} from "../libs/quiz.lib";
 import chalk from "chalk";
 import {tab} from "../libs/utils.lib";
 
-type UsageType = 'active' | 'passive' | 'transitional' | 'common';
+export type UsageType = 'active' | 'passive' | 'transitional' | 'common';
 
 export class Card {
   _id: number;
@@ -16,13 +16,13 @@ export class Card {
   needed = 0;
   count = 0;
   reverseCount?: number;
-  usage: UsageType = 'common'
+  usageType: UsageType = 'common'
 
   constructor(_id: number, question: CardItem[], answer: CardItem[], parentNodes: number[],
               count: number, needed: number, used: number,
               others: {
                 reverseCount: number,
-                usage: UsageType
+                usageType: UsageType
               }) {
     this._id = _id;
     this.question = question;
@@ -34,8 +34,8 @@ export class Card {
     if (others.reverseCount !== undefined) {
       this.reverseCount = others.reverseCount;
     }
-    if (others.usage !== undefined) {
-      this.usage = others.usage;
+    if (others.usageType !== undefined) {
+      this.usageType = others.usageType;
     }
   }
 
@@ -96,5 +96,9 @@ export class Card {
     } else {
       console.log(`COUNT: ${this.count}\n`);
     }
+  }
+
+  save() {
+    CARDS_SERVICE.updateCard(this);
   }
 }

@@ -80,7 +80,7 @@ export class CardsCliService implements ICardsService {
     return id;
   }
 
-  async createInteractively(): Promise<Card | null> {
+  async createInteractively(parentNode: MemoryNode, options: any): Promise<Card | null> {
     const questionArray: CardItem[] = [];
     const answerArray: CardItem[] = [];
     const name = await TextCardItem.createInteractively();
@@ -90,10 +90,10 @@ export class CardsCliService implements ICardsService {
     questionArray.push(name);
     await fillCardItemsArray(questionArray, 'Question');
     await fillCardItemsArray(answerArray, 'Answer');
-    return new Card(this.getNextCardId(), questionArray, answerArray, [], 0, 0, 0,
+    return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,
-        usage: 'common'
+        usageType: options.usageType ?? 'common'
       });
   }
 
@@ -110,7 +110,7 @@ export class CardsCliService implements ICardsService {
       return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode], 0, 0, 0,
         {
           reverseCount: 0,
-          usage: 'common'
+          usageType: 'common'
         });
     }
     return null;
@@ -118,7 +118,7 @@ export class CardsCliService implements ICardsService {
 
 
 
-  private saveAllCards(cards: Card[]) {
+  saveAllCards(cards: Card[]) {
     writeFileSync(CARDS_FILE_NAME, JSON.stringify(cards, null, '\t'));
   }
 }
