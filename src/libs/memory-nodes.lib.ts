@@ -1,9 +1,9 @@
 import {MemoryNode} from "../classes/memory-node"
 import chalk from 'chalk';
-import {getUserInput} from "./utils.lib";
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {Card} from "../classes/card";
 import {printArrayAsTree} from "./utils/io.lib";
+import { getUserInput } from "ag-utils-lib";
 
 export const MEMORY_NODES_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\memory-nodes.json";
 export const CARDS_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\cards.json";

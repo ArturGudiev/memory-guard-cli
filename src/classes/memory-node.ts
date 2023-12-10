@@ -4,7 +4,7 @@ import {
     printParentsPath,
     selectCards,
 } from "../libs/memory-nodes.lib";
-import {exit, getUserInput, isInRange, removeFirstArgument, removeFirstWord, waitForUserInput} from "../libs/utils.lib";
+import {isInRange, removeFirstWord} from "../libs/utils.lib";
 import chalk from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {COLOR_LightBrown} from "../constants";
@@ -12,6 +12,7 @@ import {printCardsWithTitle, printStats} from "../libs/cards.lib";
 import {quiz, testCards} from "../libs/quiz.lib";
 import {ArgumentParser} from "argparse";
 import {UsageType} from "./card";
+import { exit, getUserInput, removeFirstArgument, waitForUserInput } from "ag-utils-lib";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;
@@ -145,8 +146,9 @@ export class MemoryNode {
                 const deleted = await deleteMemoryNodeHandler(this);
                 continue;
             }
-            if ( ['+', 'c+', 'card+'].includes(command) ) {
-                const card = await CARDS_SERVICE.createInteractively(this, { usageType });
+            if ( ['+', 'c+', 'c+!', 'card+'].includes(command) ) {
+                const card = await CARDS_SERVICE.createInteractively(this,
+                  { usageType, getQuestionTextInTerminal: command === 'c+!' });
                 if (card) {
                     CARDS_SERVICE.addCard(card);
                     this.cards.push(card._id);

@@ -1,9 +1,9 @@
-import {getJSONFileContent} from "./utils.lib";
 import {Subject} from "rxjs";
 import {reactOnKeysPressed} from "./interaction.lib";
 import {addTextCardToNode} from "./memory-nodes.lib";
 import {MEMORY_NODES_SERVICE} from "../services/contianer";
 import {Card} from "../classes/card";
+import { getJSONFileContent } from "ag-utils-lib";
 
 export async function sortCollectionByNodes() {
   const arr = getJSONFileContent("C:\\Data\\Lingvo-Practice\\raw_words\\iron.json");

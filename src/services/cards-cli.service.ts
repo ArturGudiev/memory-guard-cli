@@ -1,12 +1,13 @@
 import {ICardsService} from "./service-interfaces";
 import {Card} from "../classes/card";
-import {getJSONFileContent, writeFileContent} from "../libs/utils.lib";
 import {CARDS_FILE_NAME, MEMORY_NODES_FILE_NAME, META_FILE} from "../libs/memory-nodes.lib";
 import {writeFileSync} from "fs";
 import {MemoryNode} from "../classes/memory-node";
-import {CardItem, TextCardItem} from "../classes/card-item";
+import {CardItem} from "../classes/card-item";
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
+import { getJSONFileContent, writeFileContent } from "ag-utils-lib";
+import {TextCardItem} from "../classes/text-card-item";
 
 export class CardsCliService implements ICardsService {
   addCard(card: Card): void {
@@ -25,7 +26,6 @@ export class CardsCliService implements ICardsService {
     const nodeObj = nodes.find(node => node._id === _id);
     return nodeObj ? Card.createFromObj(nodeObj) : null;
   }
-
 
   getCardsByIDs(ids: number[]): Card[] {
     let arr = getJSONFileContent(CARDS_FILE_NAME);
@@ -83,7 +83,7 @@ export class CardsCliService implements ICardsService {
   async createInteractively(parentNode: MemoryNode, options: any): Promise<Card | null> {
     const questionArray: CardItem[] = [];
     const answerArray: CardItem[] = [];
-    const name = await TextCardItem.createInteractively();
+    const name = await TextCardItem.createInteractively(options.getQuestionTextInTerminal);
     if ( !name ) {
       return null;
     }
@@ -115,8 +115,6 @@ export class CardsCliService implements ICardsService {
     }
     return null;
   }
-
-
 
   saveAllCards(cards: Card[]) {
     writeFileSync(CARDS_FILE_NAME, JSON.stringify(cards, null, '\t'));

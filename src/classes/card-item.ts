@@ -1,9 +1,16 @@
-import {getInputFromEditor, getUserInput} from "../libs/utils.lib";
+import { getInputFromEditor, getUserInput, waitForUserInput } from "ag-utils-lib";
+import { newLineConcatStringReducer } from "../libs/utils.lib";
+import {htmlNewLine, showImageInBrowser} from "../libs/utils/browser.utils";
+import {TextCardItem} from "./text-card-item";
+import {ImageCardItem} from "./image-card-item";
 
 
-export function createCardItemFromObj(obj: CardItem): TextCardItem | null {
+export function createCardItemFromObj(obj: CardItem): TextCardItem | ImageCardItem | null {
   if (obj.type === CardItemEnum.TEXT) {
     return TextCardItem.createFromObj(obj);
+  }
+  if (obj.type === CardItemEnum.IMAGE) {
+    return ImageCardItem.createFromObj(obj);
   }
   return null;
 }
@@ -19,48 +26,5 @@ export interface CardItem {
   getOneLineCardItemRepresentation(): string;
   getOneLineText(): string;
   getString(): string;
-}
-
-export class TextCardItem implements CardItem {
-  text: string = ''
-  readonly type =  CardItemEnum.TEXT
-
-
-  constructor(text: string) {
-    this.text = text;
-  }
-
-  getOneLineCardItemRepresentation(): string {
-    return 'TEXT \t ' + this.text.split('\n')[0];
-  }
-
-  getOneLineText(): string {
-    return this.text.split('\n')[0];
-  }
-
-  getString(): string {
-    return this.text;
-  }
-
-  static createFromObj(obj: any) {
-    return new TextCardItem(obj.text);
-  }
-
-  static async createInteractively(useEditor = false): Promise<TextCardItem | null> {
-    try {
-      let text: string;
-      if (useEditor) {
-        text = await getInputFromEditor('Enter text item');
-      } else {
-        text = await getUserInput('Enter card item\'s text');
-      }
-      if (text === '') {
-        return null;
-      }
-      return new TextCardItem(text);
-    } catch (e){
-      return null;
-    }
-  }
-
+  getHTML(): string;
 }

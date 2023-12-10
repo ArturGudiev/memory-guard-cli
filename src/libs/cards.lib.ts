@@ -1,8 +1,12 @@
-import {CardItem, TextCardItem} from "../classes/card-item";
-import {fMap, getUserInput, newline, printWithoutNewLine} from "./utils.lib";
+import {CardItem} from "../classes/card-item";
+import {fMap} from "./utils.lib";
 import chalk from "chalk";
 import {Card} from "../classes/card";
 import {Table} from 'console-table-printer';
+import { getUserInput, newline, printWithoutNewLine } from "ag-utils-lib";
+import {htmlNewLine} from "./utils/browser.utils";
+import {TextCardItem} from "../classes/text-card-item";
+import {ImageCardItem} from "../classes/image-card-item";
 
 export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
   while (true) {
@@ -15,6 +19,13 @@ export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
         cardItems.push(textItem);
       }
     }
+    if (command.startsWith('i+') ) {
+      const imageItem = await ImageCardItem.createInteractively();
+      if (imageItem !== null) {
+        cardItems.push(imageItem);
+      }
+    }
+
     if (command === 'x') {
       break;
     }
@@ -70,4 +81,10 @@ export function printCardItemsArray(cardItems: CardItem[], prefix = '') {
     console.log(chalk.blue(`\t${item.getOneLineCardItemRepresentation()}`));
   });
   console.log();
+}
+
+
+export function getCardItemsInHTML(items: CardItem[]): string {
+  return items.map(item => item.getHTML())
+    .reduce((item1, item2) => item1 + htmlNewLine() + item2);
 }

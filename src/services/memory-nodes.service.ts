@@ -1,6 +1,6 @@
+import { getJSONFileContent, writeFileContent } from "ag-utils-lib";
 import {MemoryNode} from "../classes/memory-node";
 import {META_FILE, MEMORY_NODES_FILE_NAME} from "../libs/memory-nodes.lib";
-import {getJSONFileContent, writeFileContent} from "../libs/utils.lib";
 import {IMemoryNodesService} from "./service-interfaces";
 import {writeFileSync} from "fs";
 

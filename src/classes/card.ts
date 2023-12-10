@@ -1,9 +1,14 @@
-import {CardItem, createCardItemFromObj, TextCardItem} from "./card-item";
+import {CardItem, CardItemEnum, createCardItemFromObj} from "./card-item";
 import {MemoryNode} from "./memory-node";
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {IQuizState} from "../libs/quiz.lib";
 import chalk from "chalk";
-import {tab} from "../libs/utils.lib";
+import {tab} from "ag-utils-lib";
+import {newLineConcatStringReducer} from "../libs/utils.lib";
+import {some} from "lodash";
+import {getCardItemsInHTML} from "../libs/cards.lib";
+import {showHTMLInBrowser} from "../libs/utils/browser.utils";
+import {TextCardItem} from "./text-card-item";
 
 export type UsageType = 'active' | 'passive' | 'transitional' | 'common';
 
@@ -69,19 +74,41 @@ export class Card {
     return this.question[0].getOneLineText();
   }
 
-  printQuestion() {
+  async printQuestion() {
     console.log(tab('Question: '));
-    this.question.forEach((cardItem: CardItem) => {
-      console.log(tab(cardItem.getString(), 2));
-    });
+    if (some(this.question, item => item.type === CardItemEnum.IMAGE)) {
+      const html = getCardItemsInHTML(this.question);
+      await showHTMLInBrowser(html);
+
+    } else {
+      this.question.forEach((cardItem: CardItem) => {
+        console.log(tab(cardItem.getString(), 2));
+      });
+    }
   }
 
-  printAnswer() {
+  getQuestionHTML(): string {
+    return this.question
+    .map((cardItem: CardItem) => cardItem.getHTML())
+    .reduce(newLineConcatStringReducer);
+  }
+
+  async printAnswer() {
     console.log(tab('Answer: '));
+    if (some(this.answer, item => item.type === CardItemEnum.IMAGE)) {
+      const html = getCardItemsInHTML(this.answer);
+      await showHTMLInBrowser(html);
+    }
     this.answer.forEach((cardItem: CardItem) => {
       console.log(tab(cardItem.getString(), 2));
     });
     console.log();
+  }
+
+  getAnswerHTML(): string {
+    return this.answer
+    .map((cardItem: CardItem) => cardItem.getHTML())
+    .reduce(newLineConcatStringReducer);
   }
 
 

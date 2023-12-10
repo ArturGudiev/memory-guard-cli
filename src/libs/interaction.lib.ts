@@ -30,7 +30,7 @@ export async function reactOnKeysPressed(
     .pipe(take(1))
     .subscribe(() => destroy$.next());
 
-  keyPressed$.subscribe(val => {
+  keyPressed$.subscribe(async (val) => {
     if (exitKeys.includes(val)) {
       destroy$.next();
     }
@@ -39,7 +39,7 @@ export async function reactOnKeysPressed(
       console.log('you pressed b');
     }
     if (keyHandlers[val] !== undefined) {
-      keyHandlers[val]();
+      await keyHandlers[val]();
     } else {
       console.log('some key', val);
     }

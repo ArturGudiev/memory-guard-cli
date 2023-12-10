@@ -2,6 +2,7 @@ import {Card} from "../classes/card";
 import {reactOnKeysPressed} from "./interaction.lib";
 import {Subject} from "rxjs";
 import {getRandomArrayElement} from "./utils/random.lib";
+import { inTag } from "./utils/browser.utils";
 
 export function quiz(cards: Card[]) {
 
@@ -51,20 +52,20 @@ export interface IQuizState {
 }
 
 export async function testCard(card: Card, quizState: IQuizState | null = null) {
-  const printCurrentQuestionFromScratch = () => {
+  const printCurrentQuestionFromScratch = async () => {
     console.clear();
     card.printStats(quizState);
-    card.printQuestion();
+    await card.printQuestion();
   };
   printCurrentQuestionFromScratch();
   let answerWasShowed = false;
   const exitSubject = new Subject<void>();
   await reactOnKeysPressed(
     {
-      '1': () => {
+      '1': async () => {
         if ( !answerWasShowed ) {
-          printCurrentQuestionFromScratch();
-          card.printAnswer();
+          await printCurrentQuestionFromScratch();
+          await card.printAnswer();
           answerWasShowed = true;
         } else {
           card.increaseCount();
@@ -85,3 +86,12 @@ export async function testCard(card: Card, quizState: IQuizState | null = null) 
   );
 }
 
+
+export function showCardInBrowser(card: Card): void {
+  const html = `
+  ${inTag('Question')}
+  ${card.getQuestionHTML()}
+  ${inTag('Answer')}
+  ${card.getAnswerHTML()}
+  `
+}
