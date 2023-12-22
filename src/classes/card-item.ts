@@ -12,10 +12,12 @@ export function createCardItemFromObj(obj: CardItem): TextCardItem | ImageCardIt
   if (obj.type === CardItemEnum.IMAGE) {
     return ImageCardItem.createFromObj(obj);
   }
+
   return null;
 }
 export enum CardItemEnum {
   TEXT = 'TEXT',
+  TEXT_WITH_HIGHLIGHTED_SYMBOLS = 'TEXT_WITH_HIGHLIGHTED_SYMBOLS',
   CODE = 'CODE',
   IMAGE = 'IMAGE',
   WORD_WITH_STRESS = 'WORD_WITH_STRESS'

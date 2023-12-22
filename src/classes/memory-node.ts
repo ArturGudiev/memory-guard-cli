@@ -9,10 +9,11 @@ import chalk from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {COLOR_LightBrown} from "../constants";
 import {printCardsWithTitle, printStats} from "../libs/cards.lib";
-import {quiz, testCards} from "../libs/quiz.lib";
+import {ITestOptions, quiz, testCards} from "../libs/quiz.lib";
 import {ArgumentParser} from "argparse";
 import {UsageType} from "./card";
 import { exit, getUserInput, removeFirstArgument, waitForUserInput } from "ag-utils-lib";
+import {isNil} from "lodash";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;
@@ -62,20 +63,23 @@ export class MemoryNode {
     children: number[] = [];
     parents: number[] = [];
     cards: number[] = [];
+    aliases: string[] = [];
     // views versions verse hierarchy
     
-    constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[]) {
+    constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[],
+                aliases: string[]) {
         this._id = _id;
         this.name = name;
         this.children = children;
         this.parents = parents;
         this.cards = memoryItems;
+        this.aliases = aliases;
     }
 
     createChildNode() {}
 
     static createFromObj(obj: MemoryNode): MemoryNode {
-        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards);
+        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards, obj.aliases);
     }
 
     save(): void {
@@ -93,7 +97,10 @@ export class MemoryNode {
     print(usageType: UsageType | null = null) {
         const cards = this.getCards(usageType);
         printParentsPath(this);
-        console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} [${cards.length}] ) \t Usage: ${usageType}\n`));
+        const aliasesPart = isNil(this.aliases) ? '' : `\t\t${this.aliases}`;
+        console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} [${cards.length}] ) \t Usage: ${usageType}`
+            + aliasesPart + '\n'
+        ));
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
         printStats(cards);
         printCardsWithTitle(cards)
@@ -156,6 +163,16 @@ export class MemoryNode {
                 }
                 await waitForUserInput();
             }
+            if (['apal'].includes(command)) {
+                commandArgs.forEach(alias => {
+                    if (MEMORY_NODES_SERVICE.isAliasUsed(alias)) {
+                        waitForUserInput(`Can't add already existing alias`);
+                    } else {
+                        this.aliases.push(alias);
+                    }
+                });
+                this.save();
+            }
             if (['sel', 's'].includes(command)) {
                 const cards = this.getCards(usageType);
                 const selectedCards = selectCards(cards, commandArgs);
@@ -169,12 +186,17 @@ export class MemoryNode {
                         description: 'Argparse example'
                     });
                     parser.add_argument('--count', {type: 'int'});
+                    parser.add_argument('--until', {type: 'int'});
                     const args = parser.parse_args(additionalCommandArgsString.split(' '));
-                    const options: any | null = {
-                        rightAnswersQuantity: 5
-                    };
+                    let options: ITestOptions = {};
                     if (args.count) {
                         options.rightAnswersQuantity = args.count;
+                    }
+                    if (args.until) {
+                        options.until = args.until;
+                    }
+                    if (!options) {
+                        options = {rightAnswersQuantity: 5}
                     }
                     await testCards(selectedCards, options);
                 }

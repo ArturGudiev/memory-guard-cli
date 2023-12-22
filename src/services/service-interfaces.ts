@@ -11,6 +11,8 @@ export interface IMemoryNodesService {
   updateMemoryNode(nodeToSave: MemoryNode): void;
   deleteMemoryNode(memoryNode: MemoryNode): void;
   nodeExists(id: number): boolean;
+  isAliasUsed(aliasToCheck: string): boolean;
+  getMemoryNodeByAlias(alias: string): MemoryNode | null;
 }
 
 export interface ICardsService {

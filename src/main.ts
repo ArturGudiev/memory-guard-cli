@@ -58,8 +58,14 @@ async function temp() {
   // psFocusOnApp('Notepad');
   // exec('pwsh.exe ')
   // runPowerShellCommand('br google.com')
-  psFocusOnApp('PowerShell');
-
+  // psFocusOnApp('PowerShell');
+  MEMORY_NODES_SERVICE.getMemoryNodeById(1)?.interactive();
+  // const nodes = MEMORY_NODES_SERVICE.getAllMemoryNodes();
+  // nodes.forEach(node => {
+  //   console.log('node.' , node._id);
+  //   node.aliases = [];
+  //   node.save();
+  // })
 }
 
 
@@ -68,6 +74,8 @@ async function main() {
     description: 'Argparse example'
   });
   parser.add_argument('--memory-node', {type: 'int'});
+  parser.add_argument('--memory-node-interactive', {action: 'store_true'});
+  parser.add_argument('--alias', {type: 'str'});
   parser.add_argument('--temp', {action: 'store_true'});
 
   parser.add_argument('--add-text-item', {type: 'int'});
@@ -84,6 +92,16 @@ async function main() {
     const questionText = args.question;
     const answerText = args.answer;
     addTextCardToNode(questionText, answerText, id);
+  }
+  if (args.memory_node_interactive) {
+    console.log('alias ', args.alias);
+    if (args.alias) {
+      const node = MEMORY_NODES_SERVICE.getMemoryNodeByAlias(args.alias);
+      node?.interactive();
+      return;
+    } else {
+      console.log('No Alias');
+    }
   }
   if (args.temp) {
     await temp();

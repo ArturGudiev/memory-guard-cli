@@ -3,13 +3,15 @@ import {reactOnKeysPressed} from "./interaction.lib";
 import {Subject} from "rxjs";
 import {getRandomArrayElement} from "./utils/random.lib";
 import { inTag } from "./utils/browser.utils";
+import {isNil} from "lodash";
 
 export function quiz(cards: Card[]) {
 
 }
 
 export interface ITestOptions {
-  rightAnswersQuantity: number; // обычно 5, на сколько больше должно стать количество count, чтобы слово убрали из теста
+  rightAnswersQuantity?: number; // обычно 5, на сколько больше должно стать количество count, чтобы слово убрали из теста
+  until?: number; // обычно 5, на сколько больше должно стать количество count, чтобы слово убрали из теста
 }
 
 export async function testCards(cards: Card[], options: ITestOptions = {rightAnswersQuantity: 5}): Promise<void> {
@@ -20,7 +22,14 @@ export async function testCards(cards: Card[], options: ITestOptions = {rightAns
   const originalCounts: any = {}; // is needed to check difference
   cards.forEach(card => originalCounts[card._id] = card.count);
 
-  const isCardFinished = (card: Card) => card.count - originalCounts[card._id] >= options.rightAnswersQuantity;
+  const isCardFinished = (card: Card) => {
+    if (!isNil(options.rightAnswersQuantity)) {
+      return card.count - originalCounts[card._id] >= options.rightAnswersQuantity;
+    }
+    if (!isNil(options.until)) {
+      return card.count >= options.until;
+    }
+  };
   const hasUnfinishedCard = () => cards.some(card => !isCardFinished(card));
 
   const getUnfinishedCards = () => {
