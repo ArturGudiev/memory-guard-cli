@@ -103,7 +103,7 @@ export class MemoryNode {
         ));
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
         printStats(cards);
-        printCardsWithTitle(cards)
+        printCardsWithTitle(cards.slice(0, 20))
         // const children = getNodeById();
         // console.log(`${JSON.stringify(this.childrenByHierarchies)} `);
 

@@ -7,6 +7,7 @@ import { getUserInput, newline, printWithoutNewLine } from "ag-utils-lib";
 import {htmlNewLine} from "./utils/browser.utils";
 import {TextCardItem} from "../classes/text-card-item";
 import {ImageCardItem} from "../classes/image-card-item";
+import {TextWithHighlightedSymbolCardItem} from "../classes/text-with-highlighted-symbol";
 
 export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
   while (true) {
@@ -25,6 +26,12 @@ export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
         cardItems.push(imageItem);
       }
     }
+    if (command.startsWith('th+') ) {
+      const item = await TextWithHighlightedSymbolCardItem.createInteractively();
+      if (item !== null) {
+        cardItems.push(item);
+      }
+    }
 
     if (command === 'x') {
       break;
@@ -35,10 +42,13 @@ export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
 export function printCardsWithTitle(cards: Card[]): void {
   if ( cards.length > 0 ) {
     console.log(('\t------ Cards ------'));
+    // cards.forEach(card => console.log(card.getOneLineQuestion()));
     console.log();
+    const arrToPrint = [];
     cards.forEach((card: Card, index: number) => {
       // console.log(chalk.yellowBright(`\t ${index + 1}. ${card.question[0].getOneLineText()}`));
-      printWithoutNewLine(chalk.yellowBright(`\t ${index + 1}. ${card.question[0].getOneLineText()}`));
+      console.log(chalk.yellowBright(`\t ${index + 1}. ${card.getOneLineQuestion().slice(0, 9)}`));
+      arrToPrint.push(chalk.yellowBright(`\t ${index + 1}. ${card.getOneLineQuestion().slice(0, 9)}`));
     })
     newline(2);
   }

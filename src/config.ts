@@ -1,0 +1,3 @@
+const OPTIONS = {
+  useUnicodeInput: false
+}

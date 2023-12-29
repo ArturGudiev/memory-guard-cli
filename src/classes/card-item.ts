@@ -3,11 +3,15 @@ import { newLineConcatStringReducer } from "../libs/utils.lib";
 import {htmlNewLine, showImageInBrowser} from "../libs/utils/browser.utils";
 import {TextCardItem} from "./text-card-item";
 import {ImageCardItem} from "./image-card-item";
+import {TextWithHighlightedSymbolCardItem} from "./text-with-highlighted-symbol";
 
 
-export function createCardItemFromObj(obj: CardItem): TextCardItem | ImageCardItem | null {
+export function createCardItemFromObj(obj: CardItem): TextCardItem | TextWithHighlightedSymbolCardItem | ImageCardItem | null {
   if (obj.type === CardItemEnum.TEXT) {
     return TextCardItem.createFromObj(obj);
+  }
+  if (obj.type === CardItemEnum.TEXT_WITH_HIGHLIGHTED_SYMBOL) {
+    return TextWithHighlightedSymbolCardItem.createFromObj(obj);
   }
   if (obj.type === CardItemEnum.IMAGE) {
     return ImageCardItem.createFromObj(obj);
@@ -17,7 +21,7 @@ export function createCardItemFromObj(obj: CardItem): TextCardItem | ImageCardIt
 }
 export enum CardItemEnum {
   TEXT = 'TEXT',
-  TEXT_WITH_HIGHLIGHTED_SYMBOLS = 'TEXT_WITH_HIGHLIGHTED_SYMBOLS',
+  TEXT_WITH_HIGHLIGHTED_SYMBOL = 'TEXT_WITH_HIGHLIGHTED_SYMBOL',
   CODE = 'CODE',
   IMAGE = 'IMAGE',
   WORD_WITH_STRESS = 'WORD_WITH_STRESS'

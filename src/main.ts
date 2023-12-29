@@ -1,11 +1,18 @@
 import {ArgumentParser} from "argparse";
 import {Card, UsageType} from "./classes/card";
-import {addTextCardToNode} from "./libs/memory-nodes.lib";
-import {MEMORY_NODES_SERVICE} from "./services/contianer";
-import {getUserInput, waitForUserInput} from "ag-utils-lib";
+import {addTextCardToNode, CARDS_FILE_NAME} from "./libs/memory-nodes.lib";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./services/contianer";
+import {exit, getJSONFileContent, getUserInput, sleep, tab, waitForUserInput} from "ag-utils-lib";
 import chalk from "chalk";
 import {psFocusOnApp, runPowerShellCommand} from "./libs/utils/powershell";
 import {exec} from "child_process";
+import {getStringWithHighlightedSymbols, printStringWithHighlightedSymbols} from "./ts-utils/chalk.utils";
+import {bindCallback, Subject} from "rxjs";
+import {reactOnKeysPressed} from "./libs/interaction.lib";
+import readlineSync from "readline-sync";
+import readline from "readline";
+import {TextWithHighlightedSymbolCardItem} from "./classes/text-with-highlighted-symbol";
+import {MemoryNodesCliService} from "./services/memory-nodes.service";
 
 function setUsageTypeForAllCardsInNode(nodeId: number, usageType: UsageType) {
   const node = MEMORY_NODES_SERVICE.getMemoryNodeById(nodeId);
@@ -40,8 +47,8 @@ export async function f() {
   while (true) {
 
     console.clear();
-    const number1 = getRandomInt(1, 9);
-    const number2 = getRandomInt(1, 9);
+    const number1 = getRandomInt(1, 4);
+    const number2 = getRandomInt(1, 4);
     console.log(chalk.bgHex(backgroundColor).white('Hello, world!'));
     console.log(greeting);
     console.log(`${number1} + ${number2} =`);
@@ -54,18 +61,84 @@ export async function f() {
     await waitForUserInput();
   }
 }
+
+
+
+export async function selectSymbolInString(text: string): Promise<number | null> {
+  if (!text) {
+    return null;
+  }
+  let symbolToSelect = 0;
+  while (true) {
+    console.clear();
+    printStringWithHighlightedSymbols(text, [symbolToSelect]);
+    const exitSubject = new Subject<void>();
+    let exitLoop = false;
+    await reactOnKeysPressed(
+      {
+        '2': async () => {
+          if (symbolToSelect < text.length) {
+            symbolToSelect += 1;
+          }
+          exitSubject.next();
+        },
+        '1': () => {
+          if (symbolToSelect > 0) {
+            symbolToSelect -= 1;
+          }
+          exitSubject.next();
+        },
+        'x': () => {
+          exitSubject.next();
+          exitLoop = true;
+        }
+      },
+      [],
+      exitSubject
+    );
+    if (exitLoop) {
+      return symbolToSelect;
+    }
+    // await waitForUserInput();
+  }
+
+}
+
+export async function getUserInput2(message: string, colon = true) {
+  message = message + (colon ? ':' : '') + ' ';
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  let wait = true;
+  let answerToReturn = '';
+  rl.question(message, (answer) => {
+    answerToReturn = answer;
+    wait = false;
+    rl.close();
+  });
+  while (wait) {
+    await sleep(200);
+  }
+  return answerToReturn;
+}
+
+
+
+
 async function temp() {
-  // psFocusOnApp('Notepad');
-  // exec('pwsh.exe ')
-  // runPowerShellCommand('br google.com')
-  // psFocusOnApp('PowerShell');
-  MEMORY_NODES_SERVICE.getMemoryNodeById(1)?.interactive();
-  // const nodes = MEMORY_NODES_SERVICE.getAllMemoryNodes();
-  // nodes.forEach(node => {
-  //   console.log('node.' , node._id);
-  //   node.aliases = [];
-  //   node.save();
-  // })
+  // const cards: any[] = getJSONFileContent(CARDS_FILE_NAME);
+  // return cards.map((node: any, index: number) => {
+  //   console.log(node, index);
+  //   return Card.createFromObj(node);
+  // });
+  // const card = CARDS_SERVICE.getCardById(225);
+  // card?.printAnswer();
+  // const str = getStringWithHighlightedSymbols('asd', [1]);
+  // const res = tab(str, 2)
+  // console.log(res);
+  await f();
+
 }
 
 
