@@ -1,4 +1,4 @@
-import { removeFirstArgument } from "ag-utils-lib";
+import {getUserInput, getUserInputUnicode, removeFirstArgument} from "ag-utils-lib";
 
 
 export function isInRange(numberToCheck: number, leftBorderType: '[' | '(', leftBorderNumber: number,
@@ -35,4 +35,13 @@ export const newLineConcatStringReducer = (x: string, y: string) => x + '\n' + y
 
 export function isNullOrUndefined(val: unknown): boolean {
   return val === undefined || val === null;
+}
+
+export async function getInput(message: string): Promise<string> {
+  const isUnicode = OPTIONS.useUnicodeInput;
+  if (isUnicode) {
+    return await getUserInputUnicode(message);
+  } else {
+    return await getUserInput(message);
+  }
 }

@@ -12,8 +12,19 @@ import {printCardsWithTitle, printStats} from "../libs/cards.lib";
 import {ITestOptions, quiz, testCards} from "../libs/quiz.lib";
 import {ArgumentParser} from "argparse";
 import {UsageType} from "./card";
-import { exit, getUserInput, removeFirstArgument, waitForUserInput } from "ag-utils-lib";
+import {
+    exit,
+    getUserInput,
+    getUserInputUnicode,
+    removeFirstArgument,
+    selectIndexFromList,
+    waitForUserInput
+} from "ag-utils-lib";
 import {isNil} from "lodash";
+import {selectSymbolInString} from "../main";
+import {TextCardItem} from "./text-card-item";
+import {TextWithHighlightedSymbolCardItem} from "./text-with-highlighted-symbol";
+import {CardItem} from "./card-item";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;
@@ -103,7 +114,8 @@ export class MemoryNode {
         ));
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
         printStats(cards);
-        printCardsWithTitle(cards.slice(0, 20))
+        // printCardsWithTitle(cards.slice(0, 20))
+        printCardsWithTitle(cards)
         // const children = getNodeById();
         // console.log(`${JSON.stringify(this.childrenByHierarchies)} `);
 
@@ -114,7 +126,8 @@ export class MemoryNode {
         while (true) {
             console.clear();
             this.print(usageType);
-            const commandRaw = await getUserInput('Enter a command');
+            const commandRaw = await getUserInputUnicode('Enter a command');
+            // const commandRaw = await getUserInput('Enter a command');
             const command = commandRaw.split(' ')[0];
             const commandArgs = removeFirstArgument(commandRaw.split(' '));
             if (!command) {
@@ -162,6 +175,18 @@ export class MemoryNode {
                     this.save();
                 }
                 await waitForUserInput();
+            }
+            if (['sc_s', 'scs', 'ысы'].includes(command)) {
+                await this.scriptAddWordWithStress(usageType);
+            }
+            if (['scs2', 'ысы2'].includes(command)) {
+                await this.scriptAddSeveralWordsWithStress(usageType);
+            }
+            if (['selc'].includes(command)) {
+                const cards = this.getCards(usageType);
+                const index = await selectIndexFromList(cards.map(c => c.getOneLineQuestion()));
+                const card = cards[index];
+                await card.interactive();
             }
             if (['apal'].includes(command)) {
                 commandArgs.forEach(alias => {
@@ -247,6 +272,59 @@ export class MemoryNode {
     getCards(usage: UsageType | null = null) {
         const cards = CARDS_SERVICE.getCardsByIDs(this.cards);
         return usage === null ? cards : cards.filter(card => card.usageType === usage);
+    }
+
+    private async scriptAddWordWithStress(usageType: UsageType | null): Promise<void> {
+        const word = await getUserInputUnicode('Enter a word');
+        if (!word) {
+            // continue;
+            return;
+        }
+        const textItem = new TextCardItem(word);
+        const index = await selectSymbolInString(word);
+        if (index === null) {
+            // continue;
+            return;
+        }
+        const textWithSymbolItem = new TextWithHighlightedSymbolCardItem(word, index);
+        const card = CARDS_SERVICE.createCardByQuestionAndAnswer(
+          this,
+          [textItem],
+          [textWithSymbolItem],
+          { usageType}
+        );
+        CARDS_SERVICE.addCard(card);
+        this.cards.push(card._id);
+        this.save();
+    }
+
+    private async scriptAddSeveralWordsWithStress(usageType: null | UsageType) {
+        const wordsString = await getUserInputUnicode('Enter a words with space');
+        if (!wordsString) {
+            return;
+        }
+        const words = wordsString.split(' ');
+        const questionString = words.join('\n');
+        const textItem = new TextCardItem(questionString);
+        const answerArray: CardItem[] = [];
+        for (const word of words) {
+            const index = await selectSymbolInString(word);
+            if (index === null) {
+                // continue;
+                return;
+            }
+            const textWithSymbolItem = new TextWithHighlightedSymbolCardItem(word, index);
+            answerArray.push(textWithSymbolItem);
+        }
+        const card = CARDS_SERVICE.createCardByQuestionAndAnswer(
+          this,
+          [textItem],
+          answerArray,
+          { usageType}
+        );
+        CARDS_SERVICE.addCard(card);
+        this.cards.push(card._id);
+        this.save();
     }
 }
 

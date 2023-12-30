@@ -1,18 +1,12 @@
 import {ArgumentParser} from "argparse";
 import {Card, UsageType} from "./classes/card";
-import {addTextCardToNode, CARDS_FILE_NAME} from "./libs/memory-nodes.lib";
+import {addTextCardToNode} from "./libs/memory-nodes.lib";
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./services/contianer";
-import {exit, getJSONFileContent, getUserInput, sleep, tab, waitForUserInput} from "ag-utils-lib";
+import {getUserInput, waitForUserInput} from "ag-utils-lib";
 import chalk from "chalk";
-import {psFocusOnApp, runPowerShellCommand} from "./libs/utils/powershell";
-import {exec} from "child_process";
-import {getStringWithHighlightedSymbols, printStringWithHighlightedSymbols} from "./ts-utils/chalk.utils";
-import {bindCallback, Subject} from "rxjs";
+import {printStringWithHighlightedSymbols} from "./ts-utils/chalk.utils";
+import {Subject} from "rxjs";
 import {reactOnKeysPressed} from "./libs/interaction.lib";
-import readlineSync from "readline-sync";
-import readline from "readline";
-import {TextWithHighlightedSymbolCardItem} from "./classes/text-with-highlighted-symbol";
-import {MemoryNodesCliService} from "./services/memory-nodes.service";
 
 function setUsageTypeForAllCardsInNode(nodeId: number, usageType: UsageType) {
   const node = MEMORY_NODES_SERVICE.getMemoryNodeById(nodeId);
@@ -91,6 +85,10 @@ export async function selectSymbolInString(text: string): Promise<number | null>
         'x': () => {
           exitSubject.next();
           exitLoop = true;
+        },
+        'ч': () => {
+          exitSubject.next();
+          exitLoop = true;
         }
       },
       [],
@@ -104,41 +102,31 @@ export async function selectSymbolInString(text: string): Promise<number | null>
 
 }
 
-export async function getUserInput2(message: string, colon = true) {
-  message = message + (colon ? ':' : '') + ' ';
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  let wait = true;
-  let answerToReturn = '';
-  rl.question(message, (answer) => {
-    answerToReturn = answer;
-    wait = false;
-    rl.close();
-  });
-  while (wait) {
-    await sleep(200);
-  }
-  return answerToReturn;
-}
+// export async function getUserInputUnicode(message: string, colon = true) {
+//   message = message + (colon ? ':' : '') + ' ';
+//   const rl = readline.createInterface({
+//     input: process.stdin,
+//     output: process.stdout
+//   });
+//   let wait = true;
+//   let answerToReturn = '';
+//   rl.question(message, (answer) => {
+//     answerToReturn = answer;
+//     wait = false;
+//     rl.close();
+//   });
+//   while (wait) {
+//     await sleep(200);
+//   }
+//   return answerToReturn;
+// }
 
 
 
 
 async function temp() {
-  // const cards: any[] = getJSONFileContent(CARDS_FILE_NAME);
-  // return cards.map((node: any, index: number) => {
-  //   console.log(node, index);
-  //   return Card.createFromObj(node);
-  // });
-  // const card = CARDS_SERVICE.getCardById(225);
-  // card?.printAnswer();
-  // const str = getStringWithHighlightedSymbols('asd', [1]);
-  // const res = tab(str, 2)
-  // console.log(res);
-  await f();
-
+  const card = CARDS_SERVICE.getCardById(214);
+  await card?.interactive();
 }
 
 

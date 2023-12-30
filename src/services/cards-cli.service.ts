@@ -1,12 +1,12 @@
 import {ICardsService} from "./service-interfaces";
 import {Card} from "../classes/card";
-import {CARDS_FILE_NAME, MEMORY_NODES_FILE_NAME, META_FILE} from "../libs/memory-nodes.lib";
+import {CARDS_FILE_NAME, META_FILE} from "../libs/memory-nodes.lib";
 import {writeFileSync} from "fs";
 import {MemoryNode} from "../classes/memory-node";
 import {CardItem} from "../classes/card-item";
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./contianer";
+import {MEMORY_NODES_SERVICE} from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
-import { getJSONFileContent, writeFileContent } from "ag-utils-lib";
+import {getJSONFileContent, writeFileContent} from "ag-utils-lib";
 import {TextCardItem} from "../classes/text-card-item";
 
 export class CardsCliService implements ICardsService {
@@ -90,6 +90,18 @@ export class CardsCliService implements ICardsService {
     questionArray.push(name);
     await fillCardItemsArray(questionArray, 'Question');
     await fillCardItemsArray(answerArray, 'Answer');
+    return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
+      {
+        reverseCount: 0,
+        usageType: options.usageType ?? 'common'
+      });
+  }
+
+  createCardByQuestionAndAnswer(
+    parentNode: MemoryNode,
+    questionArray: CardItem[],
+    answerArray: CardItem[],
+    options: any): Card {
     return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,

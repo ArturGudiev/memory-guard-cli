@@ -1,5 +1,6 @@
 import {MemoryNode} from "../classes/memory-node";
 import {Card} from "../classes/card";
+import {CardItem} from "../classes/card-item";
 
 export interface IMemoryNodesService {
 
@@ -25,6 +26,10 @@ export interface ICardsService {
   updateCard(nodeToSave: Card): void;
   deleteCard(card: Card): void;
   createInteractively(node: MemoryNode, options: any): Promise<Card | null>;
+  createCardByQuestionAndAnswer(node: MemoryNode,
+                                questionArray: CardItem[],
+                                answerArray: CardItem[],
+                                options: any): Card;
   createFromText(question: string, answer: string, parentNode: number): Card | null;
 }
 

@@ -1,7 +1,6 @@
 import {newLineConcatStringReducer} from "../libs/utils.lib";
-import {getInputFromEditor, getUserInput} from "ag-utils-lib";
+import {getInputFromEditor, getUserInputUnicode} from "ag-utils-lib";
 import {CardItem, CardItemEnum} from "./card-item";
-import {getUserInput2} from "../main";
 
 export class TextCardItem implements CardItem {
   text: string = ''
@@ -40,7 +39,7 @@ export class TextCardItem implements CardItem {
       if (useEditor) {
         text = await getInputFromEditor('Enter text item');
       } else {
-        text = await getUserInput2('Enter card item\'s text');
+        text = await getUserInputUnicode('Enter card item\'s text');
       }
       if (text === '') {
         return null;

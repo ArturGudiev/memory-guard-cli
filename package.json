@@ -30,7 +30,7 @@
     "@types/lodash": "^4.14.200",
     "@types/node": "^20.8.9",
     "@types/readline-sync": "^1.4.6",
-    "ag-utils-lib": "^1.0.36",
+    "ag-utils-lib": "^1.0.41",
     "argparse": "^2.0.1",
     "chalk": "^4.1.0",
     "commander": "^11.1.0",

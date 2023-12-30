@@ -1,8 +1,7 @@
 import {CardItem, CardItemEnum} from "./card-item";
-import {TextCardItem} from "./text-card-item";
-import {getInputFromEditor, getUserInput} from "ag-utils-lib";
-import {getUserInput2, selectSymbolInString} from "../main";
-import {getStringWithHighlightedSymbols, printStringWithHighlightedSymbols} from "../ts-utils/chalk.utils";
+import {getInputFromEditor, getUserInputUnicode} from "ag-utils-lib";
+import {selectSymbolInString} from "../main";
+import {getStringWithHighlightedSymbols} from "../ts-utils/chalk.utils";
 
 export class TextWithHighlightedSymbolCardItem implements CardItem {
   readonly type: CardItemEnum = CardItemEnum.TEXT_WITH_HIGHLIGHTED_SYMBOL;
@@ -40,7 +39,7 @@ export class TextWithHighlightedSymbolCardItem implements CardItem {
       if (useEditor) {
         text = await getInputFromEditor('Enter text item');
       } else {
-        text = await getUserInput2('Enter card item\'s text');
+        text = await getUserInputUnicode('Enter card item\'s text');
       }
       if (text === '') {
         return null;
