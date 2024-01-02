@@ -8,7 +8,7 @@ import {isInRange, removeFirstWord} from "../libs/utils.lib";
 import chalk from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {COLOR_LightBrown} from "../constants";
-import {printCardsWithTitle, printStats} from "../libs/cards.lib";
+import {printCardsArray, printCardsWithTitle, printStats} from "../libs/cards.lib";
 import {ITestOptions, quiz, testCards} from "../libs/quiz.lib";
 import {ArgumentParser} from "argparse";
 import {UsageType} from "./card";
@@ -203,6 +203,7 @@ export class MemoryNode {
                 const selectedCards = selectCards(cards, commandArgs);
                 console.log('============== ', selectedCards.length);
                 console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
+                // printCardsArray(selectedCards);
                 const additionalCommand = await getUserInput('Enter the command');
                 if (additionalCommand.startsWith('q') || additionalCommand.startsWith('quiz')) {
                     const additionalCommandArgsString = removeFirstWord(additionalCommand);

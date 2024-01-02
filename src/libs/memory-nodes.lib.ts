@@ -38,7 +38,7 @@ export const filterCommandTypeRegexes: {[key in IFilterCommandType]: RegExp} = {
   '>': /^(\s*(\w*)\s*>\s*(\d*)\s*)(.*)/,
   '>=': /^(\s*(\w*)\s*>=\s*(\d*)\s*)(.*)/,
   '==': /^(\s*(\w*)\s*==\s*(\d*)\s*)(.*)/,
-  '===': /^(\s*(\w*)\s*===\s*(\d*)\s*)(.*)/,
+  '===': /^(\s*(\w*)\s*(===|=)\s*(\d*)\s*)(.*)/,
   'in': /^(\s*(\w*)\s*in\s*([\[|\(])\s*(\d+)\s*;\s*(\d+)\s*([\]|\)])\s*)(.*)/,
 };
 
@@ -84,6 +84,21 @@ export class InFilterExpression implements IFilterExpression {
   }
 }
 
+export class ExactEqualFilterExpression implements IFilterExpression {
+  subject: string;
+  value: number; // [a, b]
+
+  constructor(subject: string, value: number) {
+    this.subject = subject;
+    this.value = value;
+  }
+
+  isTrueForObject(obj: any) {
+    return obj[this.subject] === this.value;
+  }
+}
+
+
 export function hasNextClauseExpression(originalCommandString: string): boolean {
   const limitMatch = clauseRegexes['limit'].exec(originalCommandString);
   if (limitMatch) {
@@ -102,8 +117,11 @@ export function parseNextClauseExpression(originalCommand: string): [IClauseExpr
 }
 
 export function hasNextFilterExpression(originalCommandString: string): boolean {
-  const inCommandMatch = filterCommandTypeRegexes['in'].exec(originalCommandString);
-  if (inCommandMatch) {
+  // const inCommandMatch = filterCommandTypeRegexes['in'].exec(originalCommandString);
+  if (filterCommandTypeRegexes['in'].exec(originalCommandString)) {
+    return true;
+  }
+  if (filterCommandTypeRegexes['==='].exec(originalCommandString)) {
     return true;
   }
   return false;
@@ -115,6 +133,7 @@ export function hasNextFilterExpression(originalCommandString: string): boolean 
  */
 export function parseNextFilterExpression(originalCommandString: string): [IFilterExpression, string] | [null, string] {
   const inCommandMatch = filterCommandTypeRegexes['in'].exec(originalCommandString);
+  const exactEqualCommandMatch = filterCommandTypeRegexes['==='].exec(originalCommandString);
   if ( inCommandMatch ) {
     const subject = inCommandMatch[2];
     const leftBorder = inCommandMatch[3];
@@ -126,6 +145,12 @@ export function parseNextFilterExpression(originalCommandString: string): [IFilt
       rightBorder === ']' ? end : end - 1
     ]), inCommandMatch[7]];
   }
+  if ( exactEqualCommandMatch ) {
+    const subject = exactEqualCommandMatch[2];
+    const value = Number(exactEqualCommandMatch[4]); // TODO possible different cases
+    return [new ExactEqualFilterExpression(subject, value), exactEqualCommandMatch[5]];
+  }
+
   return [null, originalCommandString];
 }
 // todo you can add () and or 

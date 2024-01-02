@@ -3,7 +3,7 @@ import {fMap} from "./utils.lib";
 import chalk from "chalk";
 import {Card} from "../classes/card";
 import {Table} from 'console-table-printer';
-import {getUserInput, newline} from "ag-utils-lib";
+import {getUserInput, newline, printWithoutNewLine} from "ag-utils-lib";
 import {htmlNewLine} from "./utils/browser.utils";
 import {TextCardItem} from "../classes/text-card-item";
 import {ImageCardItem} from "../classes/image-card-item";
@@ -39,19 +39,20 @@ export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
   }
 }
 
+export function printCardsArray(cards: Card[]) {
+  const arrToPrint =
+    cards.map(card => `'${chalk.green(card.getOneLineQuestion())}'\t`);
+  for (const cardString of arrToPrint) {
+    printWithoutNewLine(cardString)
+  }
+}
+
 export function printCardsWithTitle(cards: Card[]): void {
   if ( cards.length > 0 ) {
     console.log(('\t------ Cards ------'));
-    // cards.forEach(card => console.log(card.getOneLineQuestion()));
     console.log();
-    const arrToPrint = [];
-    // cards.forEach((card: Card, index: number) => {
-    //   // console.log(chalk.yellowBright(`\t ${index + 1}. ${card.question[0].getOneLineText()}`));
-    //   console.log(chalk.yellowBright(`\t ${index + 1}. ${card.getOneLineQuestion().slice(0, 9)}`));
-    //   arrToPrint.push(chalk.yellowBright(`\t ${index + 1}. ${card.getOneLineQuestion().slice(0, 9)}`));
-    // })
-    console.log(cards.map(card => card.getOneLineQuestion()));
-    // printArrayInColumns(cards.map(card => card.getOneLineQuestion()), 4);
+    printCardsArray(cards);
+    console.log();
     newline(2);
   }
 }
