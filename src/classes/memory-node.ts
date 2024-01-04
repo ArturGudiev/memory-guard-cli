@@ -1,18 +1,4 @@
 import {
-    addNewMemoryNodesHandler,
-    printMemoryNodesWithTitle,
-    printParentsPath,
-    selectCards,
-} from "../libs/memory-nodes.lib";
-import {isInRange, removeFirstWord} from "../libs/utils.lib";
-import chalk from 'chalk';
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
-import {COLOR_LightBrown} from "../constants";
-import {printCardsArray, printCardsWithTitle, printStats} from "../libs/cards.lib";
-import {ITestOptions, quiz, testCards} from "../libs/quiz.lib";
-import {ArgumentParser} from "argparse";
-import {UsageType} from "./card";
-import {
     exit,
     getUserInput,
     getUserInputUnicode,
@@ -20,11 +6,25 @@ import {
     selectIndexFromList,
     waitForUserInput
 } from "ag-utils-lib";
-import {isNil} from "lodash";
-import {selectSymbolInString} from "../main";
-import {TextCardItem} from "./card-items/text-card-item";
-import {TextWithHighlightedSymbolCardItem} from "./card-items/text-with-highlighted-symbol";
-import {CardItem} from "./card-items/card-item";
+import { ArgumentParser } from "argparse";
+import chalk from 'chalk';
+import { isNil } from "lodash";
+import { COLOR_LightBrown } from "../constants";
+import { printCardsWithTitle, printStats } from "../libs/cards.lib";
+import {
+    addNewMemoryNodesHandler,
+    printMemoryNodesWithTitle,
+    printParentsPath,
+    selectCards,
+} from "../libs/memory-nodes.lib";
+import { ITestOptions, testCards } from "../libs/quiz.lib";
+import { isInRange, removeFirstWord } from "../libs/utils.lib";
+import { selectSymbolInString } from "../libs/utils/mg-utils";
+import { CARDS_SERVICE, MEMORY_NODES_SERVICE } from "../services/contianer";
+import { UsageType } from "./card";
+import { CardItem } from "./card-items/card-item";
+import { TextCardItem } from "./card-items/text-card-item";
+import { TextWithHighlightedSymbolCardItem } from "./card-items/text-with-highlighted-symbol";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;

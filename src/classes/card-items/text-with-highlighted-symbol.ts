@@ -1,6 +1,6 @@
 import {CardItem, CardItemEnum} from "./card-item";
 import {getInputFromEditor, getUserInputUnicode} from "ag-utils-lib";
-import {selectSymbolInString} from "../../main";
+import { selectSymbolInString } from "../../libs/utils/mg-utils";
 import {getStringWithHighlightedSymbols} from "../../ts-utils/chalk.utils";
 
 export class TextWithHighlightedSymbolCardItem implements CardItem {
