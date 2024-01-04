@@ -1,4 +1,4 @@
-import {newLineConcatStringReducer} from "../libs/utils.lib";
+import {newLineConcatStringReducer} from "../../libs/utils.lib";
 import {getInputFromEditor, getUserInputUnicode} from "ag-utils-lib";
 import {CardItem, CardItemEnum} from "./card-item";
 

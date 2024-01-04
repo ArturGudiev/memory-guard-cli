@@ -1,6 +1,6 @@
 import {MemoryNode} from "../classes/memory-node";
 import {Card} from "../classes/card";
-import {CardItem} from "../classes/card-item";
+import {CardItem} from "../classes/card-items/card-item";
 
 export interface IMemoryNodesService {
 

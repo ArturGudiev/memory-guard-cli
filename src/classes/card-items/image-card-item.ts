@@ -1,5 +1,5 @@
 import {getUserInput} from "ag-utils-lib";
-import {showImageInBrowser} from "../libs/utils/browser.utils";
+import {showImageInBrowser} from "../../libs/utils/browser.utils";
 import {CardItem, CardItemEnum} from "./card-item";
 
 export class ImageCardItem implements CardItem {

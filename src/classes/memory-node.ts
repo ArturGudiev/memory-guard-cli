@@ -22,9 +22,9 @@ import {
 } from "ag-utils-lib";
 import {isNil} from "lodash";
 import {selectSymbolInString} from "../main";
-import {TextCardItem} from "./text-card-item";
-import {TextWithHighlightedSymbolCardItem} from "./text-with-highlighted-symbol";
-import {CardItem} from "./card-item";
+import {TextCardItem} from "./card-items/text-card-item";
+import {TextWithHighlightedSymbolCardItem} from "./card-items/text-with-highlighted-symbol";
+import {CardItem} from "./card-items/card-item";
 
 // export class MemoryNode {
 //     root: MemoryNode | null = null;

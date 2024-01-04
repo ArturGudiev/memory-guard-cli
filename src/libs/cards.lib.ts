@@ -1,13 +1,13 @@
-import {CardItem} from "../classes/card-item";
+import {CardItem} from "../classes/card-items/card-item";
 import {fMap} from "./utils.lib";
 import chalk from "chalk";
 import {Card} from "../classes/card";
 import {Table} from 'console-table-printer';
 import {getUserInput, newline, printWithoutNewLine} from "ag-utils-lib";
 import {htmlNewLine} from "./utils/browser.utils";
-import {TextCardItem} from "../classes/text-card-item";
-import {ImageCardItem} from "../classes/image-card-item";
-import {TextWithHighlightedSymbolCardItem} from "../classes/text-with-highlighted-symbol";
+import {TextCardItem} from "../classes/card-items/text-card-item";
+import {ImageCardItem} from "../classes/card-items/image-card-item";
+import {TextWithHighlightedSymbolCardItem} from "../classes/card-items/text-with-highlighted-symbol";
 
 export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
   while (true) {

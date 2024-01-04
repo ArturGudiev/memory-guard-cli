@@ -3,11 +3,11 @@ import {Card} from "../classes/card";
 import {CARDS_FILE_NAME, META_FILE} from "../libs/memory-nodes.lib";
 import {writeFileSync} from "fs";
 import {MemoryNode} from "../classes/memory-node";
-import {CardItem} from "../classes/card-item";
+import {CardItem} from "../classes/card-items/card-item";
 import {MEMORY_NODES_SERVICE} from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
 import {getJSONFileContent, writeFileContent} from "ag-utils-lib";
-import {TextCardItem} from "../classes/text-card-item";
+import {TextCardItem} from "../classes/card-items/text-card-item";
 
 export class CardsCliService implements ICardsService {
   addCard(card: Card): void {

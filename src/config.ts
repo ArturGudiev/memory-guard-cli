@@ -1,3 +1,3 @@
-const OPTIONS = {
+export const CONFIGURATION = {
   useUnicodeInput: false
 }

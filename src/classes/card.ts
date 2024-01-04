@@ -1,4 +1,4 @@
-import {CardItem, CardItemEnum, createCardItemFromObj} from "./card-item";
+import {CardItem, CardItemEnum, createCardItemFromObj} from "./card-items/card-item";
 import {MemoryNode} from "./memory-node";
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {IQuizState} from "../libs/quiz.lib";
@@ -8,7 +8,7 @@ import {newLineConcatStringReducer} from "../libs/utils.lib";
 import {some} from "lodash";
 import {getCardItemsInHTML} from "../libs/cards.lib";
 import {showHTMLInBrowser} from "../libs/utils/browser.utils";
-import {TextCardItem} from "./text-card-item";
+import {TextCardItem} from "./card-items/text-card-item";
 import {printParentsPath} from "../libs/memory-nodes.lib";
 
 export type UsageType = 'active' | 'passive' | 'transitional' | 'common';

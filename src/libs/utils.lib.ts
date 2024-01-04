@@ -1,4 +1,5 @@
 import {getUserInput, getUserInputUnicode, removeFirstArgument} from "ag-utils-lib";
+import { CONFIGURATION } from "../config";
 
 
 export function isInRange(numberToCheck: number, leftBorderType: '[' | '(', leftBorderNumber: number,
@@ -38,7 +39,7 @@ export function isNullOrUndefined(val: unknown): boolean {
 }
 
 export async function getInput(message: string): Promise<string> {
-  const isUnicode = OPTIONS.useUnicodeInput;
+  const isUnicode = CONFIGURATION.useUnicodeInput;
   if (isUnicode) {
     return await getUserInputUnicode(message);
   } else {

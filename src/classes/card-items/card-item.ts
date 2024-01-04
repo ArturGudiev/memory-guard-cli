@@ -1,9 +1,6 @@
-import { getInputFromEditor, getUserInput, waitForUserInput } from "ag-utils-lib";
-import { newLineConcatStringReducer } from "../libs/utils.lib";
-import {htmlNewLine, showImageInBrowser} from "../libs/utils/browser.utils";
-import {TextCardItem} from "./text-card-item";
-import {ImageCardItem} from "./image-card-item";
-import {TextWithHighlightedSymbolCardItem} from "./text-with-highlighted-symbol";
+import { ImageCardItem } from "./image-card-item";
+import { TextCardItem } from "./text-card-item";
+import { TextWithHighlightedSymbolCardItem } from "./text-with-highlighted-symbol";
 
 
 export function createCardItemFromObj(obj: CardItem): TextCardItem | TextWithHighlightedSymbolCardItem | ImageCardItem | null {
