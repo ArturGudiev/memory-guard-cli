@@ -93,6 +93,7 @@ export class CardsCliService implements ICardsService {
     return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,
+        practiceCount: 0,
         usageType: options.usageType ?? 'common'
       });
   }
@@ -105,6 +106,7 @@ export class CardsCliService implements ICardsService {
     return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,
+        practiceCount: 0,
         usageType: options.usageType ?? 'common'
       });
   }
@@ -122,6 +124,7 @@ export class CardsCliService implements ICardsService {
       return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode], 0, 0, 0,
         {
           reverseCount: 0,
+          practiceCount: 0,
           usageType: 'common'
         });
     }

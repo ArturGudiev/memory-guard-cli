@@ -1,4 +1,4 @@
-import {getUserInput} from "ag-utils-lib";
+import {getUserInput, tab} from "ag-utils-lib";
 import {showImageInBrowser} from "../../libs/utils/browser.utils";
 import {CardItem, CardItemEnum} from "./card-item";
 
@@ -26,6 +26,10 @@ export class ImageCardItem implements CardItem {
 
   getString(): string {
     return 'Image ' + this.imagePath;
+  }
+
+  print(): void {
+    console.log(tab(this.getString(), 2));
   }
 
   getHTML(): string {

@@ -1,5 +1,5 @@
 import {CardItem, CardItemEnum} from "./card-item";
-import {getInputFromEditor, getUserInputUnicode} from "ag-utils-lib";
+import {getInputFromEditor, getUserInputUnicode, tab} from "ag-utils-lib";
 import { selectSymbolInString } from "../../libs/utils/mg-utils";
 import {getStringWithHighlightedSymbols} from "../../ts-utils/chalk.utils";
 
@@ -27,6 +27,10 @@ export class TextWithHighlightedSymbolCardItem implements CardItem {
 
   getString(): string {
     return getStringWithHighlightedSymbols(this.text, [this.index]);
+  }
+
+  print(): void {
+    console.log(tab(this.getString(), 2));
   }
 
   static createFromObj(obj: any) {

@@ -4,9 +4,9 @@
 
 import {random} from "lodash";
 
-export function getRandomInt(max: number) {
-  return Math.floor(Math.random() * max);
-}
+// export function getRandomInt(max: number) {
+//   return Math.floor(Math.random() * max);
+// }
 
 export function getRandomArbitrary(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min) + min);

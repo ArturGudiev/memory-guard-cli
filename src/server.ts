@@ -29,6 +29,13 @@ app.get('/card/:id', function (req: any, res: any) {
     res.send(card);
 });
 
+app.get('/cards', function (req: any , res: any) {
+    const ids = JSON.parse(req.query.ids);
+    // const cards = CARD;
+    const cards = CARDS_SERVICE.getCardsByIDs(ids);
+    res.send(cards);
+});
+
 app.post('/get-cards', function (req: { body: {ids: number[]} }, res: any) {
     const ids = req.body.ids;
     const cards = CARDS_SERVICE.getCardsByIDs(ids);
@@ -40,6 +47,12 @@ app.post('/get-cards', function (req: { body: {ids: number[]} }, res: any) {
 app.get('/memory-node-by-alias/:alias', function (req: any, res: any) {
     const node = MEMORY_NODES_SERVICE.getMemoryNodeByAlias(req.params.alias);
     res.send(node);
+});
+
+app.get('/memory-nodes', function (req: any , res: any) {
+    const ids = req.query.ids;
+    const nodes = MEMORY_NODES_SERVICE.getMemoryNodesByIDs(ids);
+    res.send(nodes);
 });
 
 app.post('/get-memory-nodes', function (req: { body: {ids: number[]} }, res: any) {

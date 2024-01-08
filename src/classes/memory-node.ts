@@ -182,6 +182,9 @@ export class MemoryNode {
             if (['scs2', 'ысы2'].includes(command)) {
                 await this.scriptAddSeveralWordsWithStress(usageType);
             }
+            if (['tt', 'ее'].includes(command)) {
+                await this.scriptAddTextItems(usageType);
+            }
             if (['selc'].includes(command)) {
                 const cards = this.getCards(usageType);
                 const index = await selectIndexFromList(cards.map(c => c.getOneLineQuestion()));
@@ -268,6 +271,22 @@ export class MemoryNode {
             // }
         }
 
+    }
+    async scriptAddTextItems(usageType: string | null) {
+        const input = await getUserInputUnicode('Enter 2 items separated by =');
+        const items = input.split('=');
+        const question = [new TextCardItem(items[0])];
+        const answer = [new TextCardItem(items[1])];
+        const card = CARDS_SERVICE.createCardByQuestionAndAnswer(
+            this,
+            question,
+            answer,
+            { usageType}
+          );
+          CARDS_SERVICE.addCard(card);
+          this.cards.push(card._id);
+          this.save(); 
+        
     }
 
     getCards(usage: UsageType | null = null) {

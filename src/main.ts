@@ -1,10 +1,10 @@
-import {ArgumentParser} from "argparse";
-import {addTextCardToNode} from "./libs/memory-nodes.lib";
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./services/contianer";
+import { ArgumentParser } from "argparse";
+import { addTextCardToNode } from "./libs/memory-nodes.lib";
+import { MEMORY_NODES_SERVICE } from "./services/contianer";
+
 
 async function temp() {
-  const card = CARDS_SERVICE.getCardById(214);
-  await card?.interactive();
+
 }
 
 

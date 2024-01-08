@@ -1,5 +1,5 @@
 import {newLineConcatStringReducer} from "../../libs/utils.lib";
-import {getInputFromEditor, getUserInputUnicode} from "ag-utils-lib";
+import {getInputFromEditor, getUserInputUnicode, tab} from "ag-utils-lib";
 import {CardItem, CardItemEnum} from "./card-item";
 
 export class TextCardItem implements CardItem {
@@ -9,6 +9,10 @@ export class TextCardItem implements CardItem {
 
   constructor(text: string, width: string | null = null) {
     this.text = text;
+  }
+
+  print(): void {
+    console.log(tab(this.getString(), 2));
   }
 
   getOneLineCardItemRepresentation(): string {

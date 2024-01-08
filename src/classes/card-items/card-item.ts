@@ -30,4 +30,5 @@ export interface CardItem {
   getOneLineText(): string;
   getString(): string;
   getHTML(): string;
+  print(): void;
 }

@@ -22,12 +22,14 @@ export class Card {
   needed = 0;
   count = 0;
   reverseCount?: number;
+  practiceCount?: number;
   usageType: UsageType = 'common'
 
   constructor(_id: number, question: CardItem[], answer: CardItem[], parentNodes: number[],
               count: number, needed: number, used: number,
               others: {
                 reverseCount: number,
+                practiceCount: number,
                 usageType: UsageType
               }) {
     this._id = _id;
@@ -39,6 +41,9 @@ export class Card {
     this.count = count;
     if (others.reverseCount !== undefined) {
       this.reverseCount = others.reverseCount;
+    }
+    if (others.practiceCount !== undefined) {
+      this.practiceCount = others.practiceCount;
     }
     if (others.usageType !== undefined) {
       this.usageType = others.usageType;
@@ -83,7 +88,7 @@ export class Card {
 
     } else {
       this.question.forEach((cardItem: CardItem) => {
-        console.log(tab(cardItem.getString(), 2));
+        cardItem.print()
       });
     }
   }
@@ -101,7 +106,7 @@ export class Card {
       await showHTMLInBrowser(html);
     }
     this.answer.forEach((cardItem: CardItem) => {
-      console.log(tab(cardItem.getString(), 2));
+      cardItem.print();
     });
     console.log();
   }
