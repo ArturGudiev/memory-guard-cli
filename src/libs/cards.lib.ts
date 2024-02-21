@@ -62,27 +62,21 @@ export interface IQuantityStatsItem {
   quantity: number;
 }
 
-export function printStats(cards: Card[]): void {
-  const originalCountsArr = fMap(cards, 'count');
+export function printStats(cards: Card[], field: 'count' | 'practiceCount' = 'count'): void {
+  const fieldValues = fMap(cards, field);
   if ( cards.length > 0 ) {
-    const countsSet = new Set(originalCountsArr);
-    const countsArr = [...countsSet].sort((x, y) => x - y);
-    const stats: IQuantityStatsItem[] = [];
+    const valuesSet = new Set(fieldValues);
+    const uniqueSortedValuesArr = [...valuesSet].sort((x, y) => x - y);
     const p = new Table();
-    for (const count of countsArr) {
+    for (const value of uniqueSortedValuesArr) {
       // stats.push({
       p.addRow({
-        count,
-        quantity: originalCountsArr
-          .reduce((elCount, el) => el === count ? elCount + 1 : elCount, 0)
+        [field]: value,
+        quantity: fieldValues
+          .reduce((elCount, el) => el === value ? elCount + 1 : elCount, 0)
       });
     }
     p.printTable();
-    // console.log(stats);
-    // console.log(stats);
-    // console.table(stats.map(({count, quantity}) =>
-    //   ({Count: count, Quantity: quantity})));
-    // console.log('counts 2', countsArr);
   }
 }
 

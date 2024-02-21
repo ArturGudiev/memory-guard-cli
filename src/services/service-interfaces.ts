@@ -1,6 +1,8 @@
 import {MemoryNode} from "../classes/memory-node";
 import {Card} from "../classes/card";
 import {CardItem} from "../classes/card-items/card-item";
+import { PracticeItem } from "../classes/practice-item";
+import { UUID } from "crypto";
 
 export interface IMemoryNodesService {
 
@@ -31,5 +33,14 @@ export interface ICardsService {
                                 answerArray: CardItem[],
                                 options: any): Card;
   createFromText(question: string, answer: string, parentNode: number): Card | null;
+  getMemoryNodeCardsByMemoryNodeId(id: number): Card[];
+}
+
+export interface IPracticeItemsService {
+  getPracticeItemByCardId(cardId: number): PracticeItem | null;
+  getPracticeItemById(id: UUID): PracticeItem;
+  savePracticeItem(item: PracticeItem): PracticeItem;    
+  createPracticeItemForCard(cardId: number): PracticeItem;
+  addPracticeItem(item: PracticeItem): void;
 }
 

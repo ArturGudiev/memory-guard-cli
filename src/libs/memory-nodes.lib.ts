@@ -161,6 +161,9 @@ export function parseExpressions(originalCommand: string): [IFilterExpression[],
   while (originalCommand !== '') {
     if (hasNextFilterExpression(originalCommand)) {
       const [command, restString] = parseNextFilterExpression(originalCommand);
+      if (command === null) {
+        break;
+      }
       if (restString !== undefined) {
         originalCommand = restString;
       }
@@ -168,8 +171,7 @@ export function parseExpressions(originalCommand: string): [IFilterExpression[],
       if (command) {
         filterExpressions.push(command);
       }
-    }
-    if (hasNextClauseExpression(originalCommand)) {
+    } else if (hasNextClauseExpression(originalCommand)) {
       const [command, restString] = parseNextClauseExpression(originalCommand);
       if (restString !== undefined) {
         originalCommand = restString;
@@ -178,15 +180,16 @@ export function parseExpressions(originalCommand: string): [IFilterExpression[],
       if (command) {
         clauseExpressions.push(command);
       }
+    } else {
+      throw new Error();
     }
   }
   return [filterExpressions, clauseExpressions];
 }
 
-export function selectCards(cards: Card[], commandArgs: string[]): Card[] {
-  const argsString = commandArgs.join(' ');
-  const [filterExpressions, clauseExpressions]: [IFilterExpression[], IClauseExpression[]]
-    = parseExpressions(argsString);
+export function selectCards(cards: Card[], commandArgs: string[] | string): Card[] {
+  const argsString = Array.isArray(commandArgs) ? commandArgs.join(' ') : commandArgs;
+  const [filterExpressions, clauseExpressions]: [IFilterExpression[], IClauseExpression[]] = parseExpressions(argsString);
   let cardsToReturn = cards
     .filter(card => filterExpressions
       .every(exp => exp.isTrueForObject(card)));

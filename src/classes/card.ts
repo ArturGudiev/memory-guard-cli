@@ -1,15 +1,12 @@
-import {CardItem, CardItemEnum, createCardItemFromObj} from "./card-items/card-item";
-import {MemoryNode} from "./memory-node";
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
-import {IQuizState} from "../libs/quiz.lib";
+import { getUserInput, tab, waitForUserInput } from "ag-utils-lib";
 import chalk from "chalk";
-import {getUserInput, tab, waitForUserInput} from "ag-utils-lib";
-import {newLineConcatStringReducer} from "../libs/utils.lib";
-import {some} from "lodash";
-import {getCardItemsInHTML} from "../libs/cards.lib";
-import {showHTMLInBrowser} from "../libs/utils/browser.utils";
-import {TextCardItem} from "./card-items/text-card-item";
-import {printParentsPath} from "../libs/memory-nodes.lib";
+import { printParentsPath } from "../libs/memory-nodes.lib";
+import { IQuizState } from "../libs/quiz.lib";
+import { newLineConcatStringReducer } from "../libs/utils.lib";
+import { CARDS_SERVICE, MEMORY_NODES_SERVICE } from "../services/contianer";
+import { CardItem, createCardItemFromObj } from "./card-items/card-item";
+import { TextCardItem } from "./card-items/text-card-item";
+import { MemoryNode } from "./memory-node";
 
 export type UsageType = 'active' | 'passive' | 'transitional' | 'common';
 
@@ -22,7 +19,7 @@ export class Card {
   needed = 0;
   count = 0;
   reverseCount?: number;
-  practiceCount?: number;
+  practiceCount: number;
   usageType: UsageType = 'common'
 
   constructor(_id: number, question: CardItem[], answer: CardItem[], parentNodes: number[],
@@ -39,12 +36,13 @@ export class Card {
     this.used = used;
     this.needed = needed;
     this.count = count;
+    this.practiceCount = others.practiceCount ?? 0;
     if (others.reverseCount !== undefined) {
       this.reverseCount = others.reverseCount;
     }
-    if (others.practiceCount !== undefined) {
-      this.practiceCount = others.practiceCount;
-    }
+    // if (others.practiceCount !== undefined) {
+    //   this.practiceCount = others.practiceCount;
+    // }
     if (others.usageType !== undefined) {
       this.usageType = others.usageType;
     }
@@ -69,9 +67,21 @@ export class Card {
     this.update();
   }
 
+  increasePracticeCount(): void {
+    this.practiceCount += 1;
+    this.update();
+  }
+
   decreaseCount(): void {
     if (this.count > 0) {
       this.count -= 1;
+    }
+    this.update();
+  }
+
+  decreasePracticeCount(): void {
+    if (this.practiceCount > 0) {
+      this.practiceCount -= 1;
     }
     this.update();
   }
@@ -80,17 +90,17 @@ export class Card {
     return this.question[0].getOneLineText();
   }
 
-  async printQuestion() {
+  printQuestion() {
     console.log(tab('Question: '));
-    if (some(this.question, item => item.type === CardItemEnum.IMAGE)) {
-      const html = getCardItemsInHTML(this.question);
-      await showHTMLInBrowser(html);
+    // if (some(this.question, item => item.type === CardItemEnum.IMAGE)) {
+    //   const html = getCardItemsInHTML(this.question);
+    //   await showHTMLInBrowser(html);
 
-    } else {
+    // } else {
       this.question.forEach((cardItem: CardItem) => {
         cardItem.print()
       });
-    }
+    // }
   }
 
   getQuestionHTML(): string {
@@ -101,14 +111,14 @@ export class Card {
 
   async printAnswer() {
     console.log(tab('Answer: '));
-    if (some(this.answer, item => item.type === CardItemEnum.IMAGE)) {
-      const html = getCardItemsInHTML(this.answer);
-      await showHTMLInBrowser(html);
-    }
+    // if (some(this.answer, item => item.type === CardItemEnum.IMAGE)) {
+    //   const html = getCardItemsInHTML(this.answer);
+    //   await showHTMLInBrowser(html);
+    // }
     this.answer.forEach((cardItem: CardItem) => {
       cardItem.print();
     });
-    console.log();
+    console.log(); //TODO remove it 
   }
 
   getAnswerHTML(): string {
@@ -130,6 +140,20 @@ export class Card {
       console.log(`COUNT: ${this.count}\n`);
     }
   }
+
+  printPracticeStats(quizState: IQuizState | null) {
+    if (quizState !== null) {
+      const rightPart = this.practiceCount === quizState.originalCount
+        ? `( ${this.practiceCount} )`
+        : `(${quizState.originalCount} – ${this.practiceCount})`;
+      console.log(`\n\t(${chalk.green(quizState.leftCardsNumber)}) – ${chalk.yellow(rightPart)}\n`);
+      // console.log(`COUNT: ${this.count}\n`);
+      // console.log(`ORIGINAL COUNT: ${quizState.originalCount}`);
+    } else {
+      console.log(`PRACTICE COUNT: ${this.practiceCount}\n`); // TODO look at this practice count variable
+    }
+  }
+
 
   save() {
     CARDS_SERVICE.updateCard(this);

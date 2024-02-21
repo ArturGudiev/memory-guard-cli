@@ -4,7 +4,7 @@ import {CARDS_FILE_NAME, META_FILE} from "../libs/memory-nodes.lib";
 import {writeFileSync} from "fs";
 import {MemoryNode} from "../classes/memory-node";
 import {CardItem} from "../classes/card-items/card-item";
-import {MEMORY_NODES_SERVICE} from "./contianer";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
 import {getJSONFileContent, writeFileContent} from "ag-utils-lib";
 import {TextCardItem} from "../classes/card-items/text-card-item";
@@ -57,6 +57,14 @@ export class CardsCliService implements ICardsService {
       parent.children = parent.children.filter(id => id !== card._id);
       parent.save();
     }
+  }
+
+  getMemoryNodeCardsByMemoryNodeId(id: number): Card[] {
+    const node = MEMORY_NODES_SERVICE.getMemoryNodeById(id);
+    if (!node) {
+      return [];
+    }
+    return CARDS_SERVICE.getCardsByIDs(node.cards);
   }
 
   /**

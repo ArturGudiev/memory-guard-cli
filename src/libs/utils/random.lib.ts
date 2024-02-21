@@ -12,7 +12,7 @@ export function getRandomArbitrary(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
-export function getRandomArrayElement<T>(arr: Array<T>): T {
+export function getRandomArrayElement<T=any>(arr: Array<T>): T {
   const index = random(0, arr.length - 1);
   return arr[index];
 }

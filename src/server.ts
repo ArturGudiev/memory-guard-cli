@@ -1,7 +1,8 @@
 import express from 'express'
 import * as bodyParser from 'body-parser';
-import { CARDS_SERVICE, MEMORY_NODES_SERVICE } from './services/contianer';
+import { CARDS_SERVICE, MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE } from './services/contianer';
 import cors from 'cors';
+import {selectCards} from "./libs/memory-nodes.lib";
 
 const jsonParser = bodyParser.json()
 
@@ -41,9 +42,98 @@ app.post('/get-cards', function (req: { body: {ids: number[]} }, res: any) {
     const cards = CARDS_SERVICE.getCardsByIDs(ids);
     res.send(cards);
 });
-//---------cards------------------
+
+app.post('/cards-by-query', function (req: { body: {id: number, query: string} }, res: any) {
+    try{
+        const id = req.body.id;
+        const query = req.body.query;
+        const cards = CARDS_SERVICE.getMemoryNodeCardsByMemoryNodeId(id);
+        const selectedCards = selectCards(cards, query)
+        res.send(selectedCards);
+    } catch(e) {
+        return [];
+    }
+});
+
+app.put('/increase-card-count/:id', function (req: any, res: any) {
+    const id = +req.params.id;
+    const card = CARDS_SERVICE.getCardById(id);
+    if (card === null) {
+        res.send({});
+        return;
+    }
+    card.count += 1;
+    CARDS_SERVICE.updateCard(card);
+    res.send(card);
+});
+
+app.put('/decrease-card-count/:id', function (req: any, res: any) {
+    const id = +req.params.id;
+    const card = CARDS_SERVICE.getCardById(id);
+    if (card === null) {
+        res.send({});
+        return;
+    }
+    if (card.count > 0) {
+        card.count -= 1;
+    }
+    CARDS_SERVICE.updateCard(card);
+    res.send(card);
+});
+
+app.put('/increase-card-practice-count/:id', function (req: any, res: any) {
+    const id = +req.params.id;
+    const card = CARDS_SERVICE.getCardById(id);
+    if (card === null) {
+        res.send({});
+        return;
+    }
+    card.practiceCount += 1;
+    CARDS_SERVICE.updateCard(card);1
+    res.send(card);
+});
+
+app.put('/decrease-card-practice-count/:id', function (req: any, res: any) {
+    const id = +req.params.id;
+    const card = CARDS_SERVICE.getCardById(id);
+    if (card === null) {
+        res.send({});
+        return;
+    }
+    if (card.practiceCount > 0) {
+        card.practiceCount -= 1;
+    }
+    CARDS_SERVICE.updateCard(card);1
+    res.send(card);
+});
+
+
+
+//---------cards------------------1
+//---------practice-items------------------
+app.get('/practice-item-by-card/:id', function (req: any, res: any) {
+    const practiceItem = PRACTICE_ITEMS_SERVICE.getPracticeItemByCardId(+req.params.id);
+    res.send(practiceItem);
+});
+
+//---------practice-items------------------
 
 //---------nodes-----------------
+app.get('/stats-by-node/:id', function (req: any, res: any) {
+    const id = +req.params.id;
+    const node = MEMORY_NODES_SERVICE.getMemoryNodeById(id);
+    if (!node) {
+        res.send({});
+    }
+});
+
+app.get('/node-by-alias/:alias', function (req: any, res: any) {
+    const alias = req.params.alias;
+    const node = MEMORY_NODES_SERVICE.getMemoryNodeByAlias(alias);
+    console.log('/node-by-alias/:alias', alias, node);
+    res.send(node);
+});
+
 app.get('/memory-node-by-alias/:alias', function (req: any, res: any) {
     const node = MEMORY_NODES_SERVICE.getMemoryNodeByAlias(req.params.alias);
     res.send(node);

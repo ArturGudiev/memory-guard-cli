@@ -17,7 +17,7 @@ import {
     printParentsPath,
     selectCards,
 } from "../libs/memory-nodes.lib";
-import { ITestOptions, testCards } from "../libs/quiz.lib";
+import { ITestOptions, practiceTestCards, testCards } from "../libs/quiz.lib";
 import { isInRange, removeFirstWord } from "../libs/utils.lib";
 import { selectSymbolInString } from "../libs/utils/mg-utils";
 import { CARDS_SERVICE, MEMORY_NODES_SERVICE } from "../services/contianer";
@@ -105,7 +105,8 @@ export class MemoryNode {
         return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.parents);
     }
 
-    print(usageType: UsageType | null = null) {
+    print(usageType: UsageType | null = null, field: 'count' | 'practiceCount' = 'count') {
+        console.log('print', field)
         const cards = this.getCards(usageType);
         printParentsPath(this);
         const aliasesPart = isNil(this.aliases) ? '' : `\t\t${this.aliases}`;
@@ -113,7 +114,7 @@ export class MemoryNode {
             + aliasesPart + '\n'
         ));
         printMemoryNodesWithTitle(this.getChildMemoryNodes());
-        printStats(cards);
+        printStats(cards, field);
         // printCardsWithTitle(cards.slice(0, 20))
         printCardsWithTitle(cards)
         // const children = getNodeById();
@@ -123,9 +124,10 @@ export class MemoryNode {
 
     async interactive() {
         let usageType: UsageType | null = null;
+        let field: 'count' | 'practiceCount' = 'count'
         while (true) {
             console.clear();
-            this.print(usageType);
+            this.print(usageType, field);
             const commandRaw = await getUserInputUnicode('Enter a command');
             // const commandRaw = await getUserInput('Enter a command');
             const command = commandRaw.split(' ')[0];
@@ -166,6 +168,10 @@ export class MemoryNode {
                 const deleted = await deleteMemoryNodeHandler(this);
                 continue;
             }
+            if (command === 'cf' || command === 'change_field') {
+                field = field === 'count' ? 'practiceCount' : 'count'
+                continue;
+            }
             if ( ['+', 'c+', 'c+!', 'card+'].includes(command) ) {
                 const card = await CARDS_SERVICE.createInteractively(this,
                   { usageType, getQuestionTextInTerminal: command === 'c+!' });
@@ -202,6 +208,7 @@ export class MemoryNode {
                 this.save();
             }
             if (['sel', 's'].includes(command)) {
+                // selects items and stores them in selectedCard local variable 
                 const cards = this.getCards(usageType);
                 const selectedCards = selectCards(cards, commandArgs);
                 console.log('============== ', selectedCards.length);
@@ -228,6 +235,28 @@ export class MemoryNode {
                         options = {rightAnswersQuantity: 5}
                     }
                     await testCards(selectedCards, options);
+                }
+
+                if (additionalCommand.startsWith('pq') || additionalCommand.startsWith('pquiz') || additionalCommand.startsWith('practice-quiz')) {
+                    const additionalCommandArgsString = removeFirstWord(additionalCommand);
+
+                    const parser = new ArgumentParser({
+                        description: 'Argparse example'
+                    });
+                    parser.add_argument('--count', {type: 'int'});
+                    parser.add_argument('--until', {type: 'int'});
+                    const args = parser.parse_args(additionalCommandArgsString.split(' '));
+                    let options: ITestOptions = {};
+                    if (args.count) {
+                        options.rightAnswersQuantity = args.count;
+                    }
+                    if (args.until) {
+                        options.until = args.until;
+                    }
+                    if (!options) {
+                        options = {rightAnswersQuantity: 5}
+                    }
+                    await practiceTestCards(selectedCards, options);
                 }
             }
             if (['us', 'usage'].includes(command)) {
