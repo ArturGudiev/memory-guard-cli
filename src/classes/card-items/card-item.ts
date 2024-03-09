@@ -1,9 +1,10 @@
 import { ImageCardItem } from "./image-card-item";
 import { TextCardItem } from "./text-card-item";
 import { TextWithHighlightedSymbolCardItem } from "./text-with-highlighted-symbol";
+import {CodeCardItem} from "./code-card-item";
 
 
-export function createCardItemFromObj(obj: CardItem): TextCardItem | TextWithHighlightedSymbolCardItem | ImageCardItem | null {
+export function createCardItemFromObj(obj: CardItem): TextCardItem | TextWithHighlightedSymbolCardItem | ImageCardItem | CodeCardItem | null {
   if (obj.type === CardItemEnum.TEXT) {
     return TextCardItem.createFromObj(obj);
   }
@@ -12,6 +13,9 @@ export function createCardItemFromObj(obj: CardItem): TextCardItem | TextWithHig
   }
   if (obj.type === CardItemEnum.IMAGE) {
     return ImageCardItem.createFromObj(obj);
+  }
+  if (obj.type === CardItemEnum.CODE) {
+    return CodeCardItem.createFromObj(obj);
   }
 
   return null;

@@ -201,9 +201,6 @@ export function selectCards(cards: Card[], commandArgs: string[] | string): Card
 
 export function printParentsPath(node: MemoryNode) {
   const parentsPath = getParentsPath(node);
-  // const parentsTree = getTreeFromArray(parentsPath);
-  // console.log(JSON.stringify(parentsTree));
-  // printTreeInColor(parentsTree);
   printArrayAsTree(parentsPath);
 }
 

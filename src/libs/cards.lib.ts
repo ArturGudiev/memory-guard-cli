@@ -8,6 +8,7 @@ import {htmlNewLine} from "./utils/browser.utils";
 import {TextCardItem} from "../classes/card-items/text-card-item";
 import {ImageCardItem} from "../classes/card-items/image-card-item";
 import {TextWithHighlightedSymbolCardItem} from "../classes/card-items/text-with-highlighted-symbol";
+import {CodeCardItem} from "../classes/card-items/code-card-item";
 
 export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
   while (true) {
@@ -28,6 +29,12 @@ export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
     }
     if (command.startsWith('th+') ) {
       const item = await TextWithHighlightedSymbolCardItem.createInteractively();
+      if (item !== null) {
+        cardItems.push(item);
+      }
+    }
+    if (command.startsWith('c+') ) {
+      const item = await CodeCardItem.createInteractively();
       if (item !== null) {
         cardItems.push(item);
       }

@@ -1,5 +1,6 @@
-import { tab } from "ag-utils-lib";
+import {getInputFromEditor, getUserInput, getUserInputUnicode, tab} from "ag-utils-lib";
 import { CardItem, CardItemEnum } from "./card-item";
+import {selectSymbolInString} from "../../libs/utils/mg-utils";
 
 export class CodeCardItem implements CardItem {
     type: CardItemEnum = CardItemEnum.CODE;
@@ -31,4 +32,18 @@ export class CodeCardItem implements CardItem {
         throw new Error("Method not implemented.");
     }
 
+    static async createInteractively() {
+        try {
+            const extension = await getUserInput('Enter code extension')
+            const code = await getInputFromEditor('Enter code', { extension});
+            return new CodeCardItem(code, extension);
+        } catch (e){
+            return null;
+        }
+    }
+
+    static createFromObj(obj: any): CodeCardItem {
+        return new CodeCardItem(obj.code, obj.extension);
+
+    }
 }

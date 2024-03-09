@@ -1,26 +1,17 @@
 import { ArgumentParser } from "argparse";
 import { PRACTICE_ITEMS_FILE, addTextCardToNode } from "./libs/memory-nodes.lib";
-import { MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE } from "./services/contianer";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE} from "./services/contianer";
 import { getJSONFileContent } from "ag-utils-lib";
 import { PracticeItem } from "./classes/practice-item";
 
 
 async function temp() {
-  // const card = PRACTICE_ITEMS_SERVICE.createPracticeItemForCard(61);
-  // // console.log(card);
-  // const id = '0b37db79-31c9-4556-9a49-bc742cb20f2a'
-  // // const item = PRACTICE_ITEMS_SERVICE.getPracticeItemById(id);
-  // // console.log(item)
-  // const practiceItems: PracticeItem[] = 
-  //   getJSONFileContent(PRACTICE_ITEMS_FILE)
-  //     .map((el: any) => PracticeItem.createFromObj(el));
-  // console.log('IDs', practiceItems.map(el => el._id));
-  // const item = practiceItems.find((el: any) => el._id === id);
 
-  // if (!item) {
-  //     throw new Error("Not Found");
-  // }
-  // return item;
+  // const memoryNode = MEMORY_NODES_SERVICE.getMemoryNodeById(2);
+  // memoryNode?.interactive();
+
+  const card = CARDS_SERVICE.getCardById(339);
+  card?.interactive();
 }
 
 
