@@ -1,6 +1,6 @@
 import express from 'express'
 import * as bodyParser from 'body-parser';
-import { CARDS_SERVICE, MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE } from './services/contianer';
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE, USERS_SERVICE} from './services/contianer';
 import cors from 'cors';
 import {selectCards} from "./libs/memory-nodes.lib";
 
@@ -156,6 +156,16 @@ app.get('/memory-node/:id', function (req: any, res: any) {
     res.send(node);
 });
 //---------nodes-----------------
+// ---------- users ----------------
+app.post('/auth-user', function (req: { body: {username: string, password: string} }, res: any) {
+    const username = req.body.username;
+    const password = req.body.password;
+    const user = USERS_SERVICE.getUserByCredentials(username, password);
+    res.send(user ?? null);
+});
+
+// ---------- users ----------------
+
 
 
 app.listen(port, () => {
