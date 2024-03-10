@@ -1,17 +1,17 @@
 import { ArgumentParser } from "argparse";
-import { PRACTICE_ITEMS_FILE, addTextCardToNode } from "./libs/memory-nodes.lib";
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE} from "./services/contianer";
+import { addTextCardToNode } from "./libs/memory-nodes.lib";
+import {CARDS_SERVICE, MEMORY_NODES_SERVICE, PRACTICE_ITEMS_SERVICE, USERS_API_SERVICE} from "./services/contianer";
 import { getJSONFileContent } from "ag-utils-lib";
 import { PracticeItem } from "./classes/practice-item";
+import {User} from "./classes/user";
+import {PRACTICE_ITEMS_FILE} from "./constants/files.constant";
 
 
 async function temp() {
-
-  // const memoryNode = MEMORY_NODES_SERVICE.getMemoryNodeById(2);
-  // memoryNode?.interactive();
-
-  const card = CARDS_SERVICE.getCardById(339);
-  card?.interactive();
+  // const users = USERS_API_SERVICE.getAllItems();
+  // console.log(users);
+  const user = await User.createInteractively();
+  USERS_API_SERVICE.addItem(user);
 }
 
 

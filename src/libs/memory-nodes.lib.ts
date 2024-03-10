@@ -3,12 +3,7 @@ import chalk from 'chalk';
 import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
 import {Card} from "../classes/card";
 import {printArrayAsTree} from "./utils/io.lib";
-import { getUserInput } from "ag-utils-lib";
-
-export const MEMORY_NODES_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\memory-nodes.json";
-export const CARDS_FILE_NAME = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\cards.json";
-export const PRACTICE_ITEMS_FILE = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\practice-items.json";
-export const META_FILE = "C:\\Programming\\NodeJS\\memory-guard-cli\\data\\meta.json"
+import {getUserInput} from "ag-utils-lib";
 
 export async function addNewMemoryNodesHandler(parent: MemoryNode): Promise<void> {
   const name = await getUserInput('Enter name');

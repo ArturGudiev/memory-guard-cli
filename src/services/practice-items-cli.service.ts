@@ -1,9 +1,9 @@
 import { getJSONFileContent, writeJSONFileContent } from "ag-utils-lib";
 import { PracticeItem } from "../classes/practice-item";
 import { IPracticeItemsService } from "./service-interfaces";
-import { PRACTICE_ITEMS_FILE } from "../libs/memory-nodes.lib";
 import { UUID, randomUUID } from "crypto";
 import { Card } from "../classes/card";
+import {PRACTICE_ITEMS_FILE} from "../constants/files.constant";
 
 export class PracticeItemsCliService implements IPracticeItemsService {
     addPracticeItem(item: PracticeItem): void {

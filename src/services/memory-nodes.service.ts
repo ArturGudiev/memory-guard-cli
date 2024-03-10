@@ -1,9 +1,9 @@
 import {equalLowerStrings, getJSONFileContent, writeFileContent} from "ag-utils-lib";
 import {MemoryNode} from "../classes/memory-node";
-import {META_FILE, MEMORY_NODES_FILE_NAME} from "../libs/memory-nodes.lib";
 import {IMemoryNodesService} from "./service-interfaces";
 import {writeFileSync} from "fs";
 import {some} from "lodash";
+import {MEMORY_NODES_FILE_NAME, META_FILE} from "../constants/files.constant";
 
 export class MemoryNodesCliService implements IMemoryNodesService {
 
