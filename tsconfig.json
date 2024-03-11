@@ -1,5 +1,9 @@
 {
     "compilerOptions": {
+
+      "paths": {
+        "@classes": ["./src/classes/index"]
+      },
       "module": "commonjs",
       "esModuleInterop": true,
       "target": "es2016",

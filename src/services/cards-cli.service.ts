@@ -1,13 +1,10 @@
 import {ICardsService} from "./service-interfaces";
-import {Card} from "../classes/card";
 import {writeFileSync} from "fs";
-import {MemoryNode} from "../classes/memory-node";
-import {CardItem} from "../classes/card-items/card-item";
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "./contianer";
+import { CARDS_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE } from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
-import {getJSONFileContent, writeFileContent} from "ag-utils-lib";
-import {TextCardItem} from "../classes/card-items/text-card-item";
+import {getJSONFileContent} from "ag-utils-lib";
 import {CARDS_FILE_NAME, META_FILE} from "../constants/files.constant";
+import { Card, CardItem, MemoryNode, TextCardItem } from "@classes";
 
 export class CardsCliService implements ICardsService {
   addCard(card: Card): void {
@@ -81,13 +78,6 @@ export class CardsCliService implements ICardsService {
     // parents[0].save();
   }
 
-  getNextCardId(): number {
-    const meta = getJSONFileContent(META_FILE);
-    const id = ++meta.cardId;
-    writeFileContent(META_FILE, meta);
-    return id;
-  }
-
   async createInteractively(parentNode: MemoryNode, options: any): Promise<Card | null> {
     const questionArray: CardItem[] = [];
     const answerArray: CardItem[] = [];
@@ -98,7 +88,7 @@ export class CardsCliService implements ICardsService {
     questionArray.push(name);
     await fillCardItemsArray(questionArray, 'Question');
     await fillCardItemsArray(answerArray, 'Answer');
-    return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
+    return new Card(META_SERVICE.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,
         practiceCount: 0,
@@ -111,7 +101,7 @@ export class CardsCliService implements ICardsService {
     questionArray: CardItem[],
     answerArray: CardItem[],
     options: any): Card {
-    return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
+    return new Card(META_SERVICE.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,
         practiceCount: 0,
@@ -129,7 +119,7 @@ export class CardsCliService implements ICardsService {
     const questionArray: CardItem[] = [new TextCardItem(question)];
     const answerArray: CardItem[] = [new TextCardItem(answer)];
     if ( MEMORY_NODES_SERVICE.nodeExists(parentNode) ) {
-      return new Card(this.getNextCardId(), questionArray, answerArray, [parentNode], 0, 0, 0,
+      return new Card(META_SERVICE.getNextCardId(), questionArray, answerArray, [parentNode], 0, 0, 0,
         {
           reverseCount: 0,
           practiceCount: 0,
