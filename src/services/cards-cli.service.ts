@@ -4,7 +4,7 @@ import { CARDS_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE } from "./contianer";
 import {fillCardItemsArray} from "../libs/cards.lib";
 import {getJSONFileContent} from "ag-utils-lib";
 import {CARDS_FILE_NAME, META_FILE} from "../constants/files.constant";
-import { Card, CardItem, MemoryNode, TextCardItem } from "@classes";
+import { Card, CardItem, MemoryNode, TextCardItem } from "../classes";
 
 export class CardsCliService implements ICardsService {
   addCard(card: Card): void {

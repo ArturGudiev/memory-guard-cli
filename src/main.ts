@@ -10,8 +10,10 @@ import {PRACTICE_ITEMS_FILE} from "./constants/files.constant";
 async function temp() {
   // const users = USERS_API_SERVICE.getAllItems();
   // console.log(users);
-  const user = await User.createInteractively();
-  USERS_API_SERVICE.addItem(user);
+  // const user = await User.createInteractively();
+  // USERS_API_SERVICE.addItem(user);
+  const node = MEMORY_NODES_SERVICE.getMemoryNodeById(1);
+  await node?.interactive();
 }
 
 
