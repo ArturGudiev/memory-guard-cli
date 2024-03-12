@@ -4,12 +4,21 @@ import {CardsCliService} from "./cards-cli.service";
 import { PracticeItemsCliService } from "./practice-items-cli.service";
 import {User} from "../classes/user";
 import {ApiService} from "../interfaces/service-interfaces";
-import {UsersApiCliService} from "./api/users-api-cli.service";
+import {UsersApiCliService} from "./api/cli/users-api-cli.service";
 
 import { META_FILE, USERS_FILE } from "../constants/files.constant";
 import {UsersService} from "./users.service";
 import { MetaService } from "./meta.service";
-import { MetaApiCliService } from "./api/meta-api-cli.service";
+import { MetaApiCliService } from "./api/cli/meta-api-cli.service";
+import { CardsApiMongoService } from "./api/mongo/cards-api-mongo.service";
+import { Card } from "../classes";
+import { MongoClient } from "mongodb";
+
+const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri);
+const dbName = 'memory-guard-v2';
+export const db = client.db(dbName);
+
 
 export class Container {
   memoryNodesService: IMemoryNodesService;
@@ -19,9 +28,15 @@ export class Container {
   usersService: UsersService;
   metaService: MetaService;
   metaApiService: MetaApiCliService;
+  cardsApiService: ApiService<Card>;
   private static instance: Container | null = null;
 
   private constructor() {
+    const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
+    const client = new MongoClient(uri);
+    const dbName = 'memory-guard-v2';
+    const db = client.db(dbName);
+
     this.memoryNodesService = new MemoryNodesCliService();
     this.cardsService = new CardsCliService();
     this.practiceItemsService = new PracticeItemsCliService();
@@ -29,6 +44,7 @@ export class Container {
     this.usersService = new UsersService();
     this.metaService = new MetaService();
     this.metaApiService = new MetaApiCliService(META_FILE);
+    this.cardsApiService = new CardsApiMongoService(db, 'cards');
   }
 
   static getInstance(): Container {
@@ -47,3 +63,4 @@ export const USERS_API_SERVICE = SERVICE_CONTAINER.usersApiService;
 export const USERS_SERVICE = SERVICE_CONTAINER.usersService;
 export const META_SERVICE = SERVICE_CONTAINER.metaService;
 export const META_API_SERVICE = SERVICE_CONTAINER.metaApiService;
+export const CARDS_API_SERVICE = SERVICE_CONTAINER.cardsApiService;

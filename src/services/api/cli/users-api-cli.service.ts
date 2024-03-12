@@ -1,5 +1,5 @@
-import {User} from "../../classes/user";
-import { BaseApiCliService } from "../../classes/abstract-classes/base-api-cli-service";
+import {User} from "../../../classes/user";
+import { BaseApiCliService } from "../../../classes/abstract-classes/base-api-cli-service";
 
 export class UsersApiCliService extends BaseApiCliService<User> {
 

@@ -1,4 +1,4 @@
-import { Meta } from "./api/meta-api-cli.service";
+import { Meta } from "./api/cli/meta-api-cli.service";
 import { META_API_SERVICE } from "./contianer";
 
 export class MetaService {

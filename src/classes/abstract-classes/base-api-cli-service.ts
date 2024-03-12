@@ -16,13 +16,13 @@ export abstract class BaseApiCliService<T extends ItemWithId<number>> implements
     this.saveAllItems(arr);
   }
 
-  async getItemById(id: number): Promise<T | null> {
+  async getItem(id: number): Promise<T | null> {
     const items: T[] = await this.getAllItems();
     const item = items.find(el => el._id === id);
     return this.createFromObj(item) ?? null;
   }
 
-  async getItemByIds(ids: number[]): Promise<T[]> {
+  async getItems(ids: number[]): Promise<T[]> {
     const items: T[] = await this.getAllItems();
     return items.filter(el => ids.includes(el._id)).map(el => this.createFromObj(el));
   }

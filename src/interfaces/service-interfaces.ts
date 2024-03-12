@@ -2,8 +2,8 @@ import { UUID } from "node:crypto";
 
 export interface ApiService<T> {
   addItem(t: T): Promise<void>;
-  getItemById(id: number): Promise<T | null>;
-  getItemByIds(id: number[]): Promise<T[]>;
+  getItem(id: number): Promise<T | null>;
+  getItems(ids: number[]): Promise<T[]>;
   getAllItems(): Promise<T[]>;
   deleteItem(t: T): Promise<void>;
   updateItem(t: T): Promise<void>;
