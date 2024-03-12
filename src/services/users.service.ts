@@ -13,8 +13,8 @@ export class UsersService {
     return node;
   }
 
-  getUserByCredentials(username: string, password: string): User | undefined {
-    const users = USERS_API_SERVICE.getAllItems();
+  async getUserByCredentials(username: string, password: string): Promise<User | undefined> {
+    const users = await USERS_API_SERVICE.getAllItems();
     return users.find(u => u.username === username && u.password === password);
   }
 }

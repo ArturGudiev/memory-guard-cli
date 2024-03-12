@@ -5,15 +5,30 @@ import { getJSONFileContent } from "ag-utils-lib";
 import { PracticeItem } from "./classes/practice-item";
 import {User} from "./classes/user";
 import {PRACTICE_ITEMS_FILE} from "./constants/files.constant";
+import { MongoClient, ObjectId } from "mongodb";
+import { MemoryNode } from "./classes";
+
+const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri);
+const dbName = 'memory-guard-v2';
+export const db = client.db(dbName);
+
+export async function getCollectionWord(collectionName: string, _id: ObjectId): Promise<any> {
+  const collection = db.collection(collectionName);
+  return await collection.findOne({_id: _id});
+}
 
 
 async function temp() {
-  // const users = USERS_API_SERVICE.getAllItems();
-  // console.log(users);
-  // const user = await User.createInteractively();
-  // USERS_API_SERVICE.addItem(user);
-  const node = MEMORY_NODES_SERVICE.getMemoryNodeById(1);
-  await node?.interactive();
+  // const node = MEMORY_NODES_SERVICE.getMemoryNodeById(1);
+  // await node?.interactive();
+  const collection = db.collection<MemoryNode>('memory-nodes');
+  const res = await collection.findOne({_id: 1});
+
+  console.log('AAAA', res);
+  // const res = await collection.find({_id: 1}).toArray();
+  // console.log('res', res);
+  // console.log('AAA');
 }
 
 

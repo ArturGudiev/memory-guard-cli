@@ -157,10 +157,10 @@ app.get('/memory-node/:id', function (req: any, res: any) {
 });
 //---------nodes-----------------
 // ---------- users ----------------
-app.post('/auth-user', function (req: { body: {username: string, password: string} }, res: any) {
+app.post('/auth-user', async function (req: { body: {username: string, password: string} }, res: any) {
     const username = req.body.username;
     const password = req.body.password;
-    const user = USERS_SERVICE.getUserByCredentials(username, password);
+    const user = await USERS_SERVICE.getUserByCredentials(username, password);
     res.send(user ?? null);
 });
 
