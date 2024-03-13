@@ -6,16 +6,16 @@ import { UUID } from "crypto";
 
 export interface IMemoryNodesService {
 
-  addMemoryNode(node: MemoryNode): void;
+  // addMemoryNode(node: MemoryNode): void;
   addNewMemoryNodeWithNameAndParents(name: string, parents: MemoryNode[]): void;
-  getAllMemoryNodes(): MemoryNode[];
-  getMemoryNodeById(_id: number): MemoryNode | null;
-  getMemoryNodesByIDs(ids: number[]): MemoryNode[];
-  updateMemoryNode(nodeToSave: MemoryNode): void;
-  deleteMemoryNode(memoryNode: MemoryNode): void;
+  // getAllMemoryNodes(): MemoryNode[];
+  // getMemoryNodeById(_id: number): MemoryNode | null;
+  // getMemoryNodesByIDs(ids: number[]): MemoryNode[];
+  // updateMemoryNode(nodeToSave: MemoryNode): void;
+  // deleteMemoryNode(memoryNode: MemoryNode): void;
   nodeExists(id: number): boolean;
   isAliasUsed(aliasToCheck: string): boolean;
-  getMemoryNodeByAlias(alias: string): MemoryNode | null;
+  getMemoryNodeByAlias(alias: string): MemoryNode | null; // TODO move to API
 }
 
 export interface ICardsService {

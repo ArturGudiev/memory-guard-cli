@@ -1,13 +1,13 @@
 import {MemoryNode} from "../classes/memory-node"
 import chalk from 'chalk';
-import {CARDS_SERVICE, MEMORY_NODES_SERVICE} from "../services/contianer";
+import {CARDS_SERVICE, MEMORY_NODES_API_SERVICE} from "../services/contianer";
 import {Card} from "../classes/card";
 import {printArrayAsTree} from "./utils/io.lib";
 import {getUserInput} from "ag-utils-lib";
 
 export async function addNewMemoryNodesHandler(parent: MemoryNode): Promise<void> {
   const name = await getUserInput('Enter name');
-  MEMORY_NODES_SERVICE.addNewMemoryNodeWithNameAndParents(name, [parent]);
+  MEMORY_NODES_API_SERVICE.addNewMemoryNodeWithNameAndParents(name, [parent]);
 }
 
 export function printMemoryNodes(nodes: MemoryNode[]) {
@@ -215,7 +215,7 @@ export function getParentsPath(obj: MemoryNode): string[] {
 export function addTextCardToNode(questionText: string, answerText: string, id: number) {
   const card = CARDS_SERVICE.createFromText(questionText, answerText, id);
   if (card) {
-    const node = MEMORY_NODES_SERVICE.getMemoryNodeById(id);
+    const node = MEMORY_NODES_API_SERVICE.getMemoryNodeById(id);
     if (node) {
       CARDS_SERVICE.addCard(card);
       node.cards.push(card._id);

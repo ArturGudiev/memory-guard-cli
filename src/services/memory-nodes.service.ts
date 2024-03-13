@@ -46,7 +46,7 @@ export class MemoryNodesCliService implements IMemoryNodesService {
     this.saveAllMemoryNodes(nodes);
   }
 
-  deleteMemoryNode(memoryNode: MemoryNode): void {
+  async deleteMemoryNode(memoryNode: MemoryNode): void {
     const tasks = this.getAllMemoryNodes();
     // move to trash
     const index = tasks.findIndex((t: MemoryNode) => t._id === memoryNode._id);
@@ -57,7 +57,7 @@ export class MemoryNodesCliService implements IMemoryNodesService {
 
     for (let parent of memoryNode.getParents()) {
       parent.children = parent.children.filter(id => id !== memoryNode._id);
-      parent.save();
+      await parent.save();
     }
   }
 
@@ -66,13 +66,13 @@ export class MemoryNodesCliService implements IMemoryNodesService {
    * @param name
    * @param parents
    */
-  addNewMemoryNodeWithNameAndParents(name: string, parents: MemoryNode[]): void {
+  async addNewMemoryNodeWithNameAndParents(name: string, parents: MemoryNode[]): Promise<void> {
     const newNodeId = this.getNextMemoryNodeId();
     const newNode =
       new MemoryNode(newNodeId, name, [], parents.map(p => p._id), [], []);
     this.addMemoryNode(newNode);
     parents[0].children.push(newNodeId);
-    parents[0].save();
+    await parents[0].save();
   }
 
   /**

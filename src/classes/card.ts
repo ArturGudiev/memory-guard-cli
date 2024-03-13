@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { printParentsPath } from "../libs/memory-nodes.lib";
 import { IQuizState } from "../libs/quiz.lib";
 import { newLineConcatStringReducer } from "../libs/utils.lib";
-import { CARDS_SERVICE, MEMORY_NODES_SERVICE } from "../services/contianer";
+import { CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
 import { CardItem, createCardItemFromObj } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { MemoryNode } from "./memory-node";
@@ -55,7 +55,7 @@ export class Card {
   }
 
   getParentNodes(): MemoryNode[] {
-    return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.parentNodes);
+    return MEMORY_NODES_API_SERVICE.getMemoryNodesByIDs(this.parentNodes);
   }
 
   update() {

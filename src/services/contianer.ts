@@ -11,8 +11,9 @@ import {UsersService} from "./users.service";
 import { MetaService } from "./meta.service";
 import { MetaApiCliService } from "./api/cli/meta-api-cli.service";
 import { CardsApiMongoService } from "./api/mongo/cards-api-mongo.service";
-import { Card } from "../classes";
+import { Card, MemoryNode } from "../classes";
 import { MongoClient } from "mongodb";
+import { MemoryNodesApiMongoService } from "./api/mongo/momery-nodes-api-mongo.service";
 
 const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
@@ -29,6 +30,7 @@ export class Container {
   metaService: MetaService;
   metaApiService: MetaApiCliService;
   cardsApiService: ApiService<Card>;
+  memoryNodesApiService: ApiService<MemoryNode>;
   private static instance: Container | null = null;
 
   private constructor() {
@@ -45,6 +47,7 @@ export class Container {
     this.metaService = new MetaService();
     this.metaApiService = new MetaApiCliService(META_FILE);
     this.cardsApiService = new CardsApiMongoService(db, 'cards');
+    this.memoryNodesApiService = new MemoryNodesApiMongoService(db, 'memory-nodes');
   }
 
   static getInstance(): Container {
@@ -64,3 +67,5 @@ export const USERS_SERVICE = SERVICE_CONTAINER.usersService;
 export const META_SERVICE = SERVICE_CONTAINER.metaService;
 export const META_API_SERVICE = SERVICE_CONTAINER.metaApiService;
 export const CARDS_API_SERVICE = SERVICE_CONTAINER.cardsApiService;
+export const MEMORY_NODES_API_SERVICE = SERVICE_CONTAINER.memoryNodesApiService;
+

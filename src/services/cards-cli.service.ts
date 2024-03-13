@@ -41,7 +41,7 @@ export class CardsCliService implements ICardsService {
     this.saveAllCards(nodes);
   }
 
-  deleteCard(card: Card): void {
+  async deleteCard(card: Card): Promise<void> {
     const tasks = this.getAllCards();
     // move to trash
     const index = tasks.findIndex((t: Card) => t._id === card._id);
@@ -52,7 +52,7 @@ export class CardsCliService implements ICardsService {
 
     for (let parent of card.getParentNodes()) {
       parent.children = parent.children.filter(id => id !== card._id);
-      parent.save();
+      await parent.save();
     }
   }
 

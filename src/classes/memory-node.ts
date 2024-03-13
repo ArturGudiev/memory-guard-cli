@@ -20,7 +20,7 @@ import {
 import { ITestOptions, practiceTestCards, testCards } from "../libs/quiz.lib";
 import { isInRange, removeFirstWord } from "../libs/utils.lib";
 import { selectSymbolInString } from "../libs/utils/mg-utils";
-import { CARDS_SERVICE, MEMORY_NODES_SERVICE } from "../services/contianer";
+import { CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
 import { UsageType } from "./card";
 import { CardItem } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
@@ -52,17 +52,18 @@ function printHierarchiesWithNames(childrenByHierarchies: any, selected: number 
 async function deleteMemoryNodeHandler(nodeToDelete: MemoryNode): Promise<boolean> {
     const answer = await getUserInput('Do you really want to delete it ');
     if (answer === 'y') {
-        nodeToDelete.getParents().forEach((parent: MemoryNode) => {
+        const parents = await nodeToDelete.getParents();
+        parents.forEach((parent: MemoryNode) => {
             parent.children = parent.children.filter(id => id !== nodeToDelete._id);
         });
-        MEMORY_NODES_SERVICE.deleteMemoryNode(nodeToDelete);
+        await MEMORY_NODES_API_SERVICE.deleteItem(nodeToDelete);
         await goToParentHandler(nodeToDelete);
     }
     return answer === 'y';
 }
 
 async function goToParentHandler(node: MemoryNode) {
-    const parent = MEMORY_NODES_SERVICE.getMemoryNodeById(node.parents[0]);
+    const parent = await MEMORY_NODES_API_SERVICE.getItem(node.parents[0]);
     if (parent) {
         await parent.interactive();
     }
@@ -93,16 +94,16 @@ export class MemoryNode {
         return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards, obj.aliases);
     }
 
-    save(): void {
-        MEMORY_NODES_SERVICE.updateMemoryNode(this);
+    async save(): Promise<void> {
+        await MEMORY_NODES_API_SERVICE.updateItem(this);
     }
 
-    getChildMemoryNodes(): MemoryNode[] {
-        return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.children);
+    async getChildMemoryNodes(): Promise<MemoryNode[]> {
+        return await MEMORY_NODES_API_SERVICE.getItems(this.children);
     }
 
-    getParents(): MemoryNode[] {
-        return MEMORY_NODES_SERVICE.getMemoryNodesByIDs(this.parents);
+    getParents(): Promise<MemoryNode[]> {
+        return MEMORY_NODES_API_SERVICE.getItems(this.parents);
     }
 
     print(usageType: UsageType | null = null, field: 'count' | 'practiceCount' = 'count') {
@@ -140,7 +141,7 @@ export class MemoryNode {
                 if (!isInRange(index, '[', 0, this.children.length, ')')) {
                     continue;
                 }
-                const child = MEMORY_NODES_SERVICE.getMemoryNodeById(this.children[index]);
+                const child = await MEMORY_NODES_API_SERVICE.getItem(this.children[index]);
                 if (child) {
                     await child.interactive();
                 }
@@ -157,7 +158,7 @@ export class MemoryNode {
             }
             if (command === 'nav') {
                 const id = +commandArgs[0];
-                const node = MEMORY_NODES_SERVICE.getMemoryNodeById(id);
+                const node = await MEMORY_NODES_API_SERVICE.getItem(id);
                 node?.interactive();
                 continue;
             }
@@ -178,7 +179,7 @@ export class MemoryNode {
                 if (card) {
                     CARDS_SERVICE.addCard(card);
                     this.cards.push(card._id);
-                    this.save();
+                    await this.save();
                 }
                 await waitForUserInput();
             }
@@ -205,7 +206,7 @@ export class MemoryNode {
                         this.aliases.push(alias);
                     }
                 });
-                this.save();
+                await this.save();
             }
             if (['sel', 's'].includes(command)) {
                 // selects items and stores them in selectedCard local variable 
@@ -314,7 +315,7 @@ export class MemoryNode {
           );
           CARDS_SERVICE.addCard(card);
           this.cards.push(card._id);
-          this.save(); 
+          await this.save();
         
     }
 
@@ -344,7 +345,7 @@ export class MemoryNode {
         );
         CARDS_SERVICE.addCard(card);
         this.cards.push(card._id);
-        this.save();
+        await this.save();
     }
 
     private async scriptAddSeveralWordsWithStress(usageType: null | UsageType) {
@@ -373,7 +374,7 @@ export class MemoryNode {
         );
         CARDS_SERVICE.addCard(card);
         this.cards.push(card._id);
-        this.save();
+        await this.save();
     }
 }
 
