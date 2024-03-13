@@ -1,11 +1,11 @@
 import { UsageType, Card } from "../../classes/card";
-import { MEMORY_NODES_SERVICE } from "../../services/contianer";
+import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE } from "../../services/contianer";
 
 
-function setUsageTypeForAllCardsInNode(nodeId: number, usageType: UsageType) {
-  const node = MEMORY_NODES_SERVICE.getMemoryNodeById(nodeId);
+async function setUsageTypeForAllCardsInNode(nodeId: number, usageType: UsageType) {
+  const node = await MEMORY_NODES_API_SERVICE.getItem(nodeId);
   if (node) {
-    const cards = node.getCards();
+    const cards = await node.getCards();
     cards.forEach((card: Card) => {
       card.usageType = usageType;
       card.save();

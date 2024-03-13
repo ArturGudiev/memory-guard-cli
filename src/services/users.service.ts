@@ -1,12 +1,12 @@
 import {User} from "../classes/user";
-import {MEMORY_NODES_SERVICE, USERS_API_SERVICE} from "./contianer";
+import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, USERS_API_SERVICE } from "./contianer";
 import {MemoryNode} from "../classes/memory-node";
 
 export class UsersService {
 
-  getUserRootNode(user: User): MemoryNode {
+  async getUserRootNode(user: User): Promise<MemoryNode> {
     const rootNodeId = user.rootNode;
-    const node = MEMORY_NODES_SERVICE.getMemoryNodeById(rootNodeId);
+    const node = await MEMORY_NODES_API_SERVICE.getItem(rootNodeId);
     if (!node) {
       throw new Error('Cant find user root node');
     }

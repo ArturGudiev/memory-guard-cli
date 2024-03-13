@@ -20,8 +20,13 @@ import {
 import { ITestOptions, practiceTestCards, testCards } from "../libs/quiz.lib";
 import { isInRange, removeFirstWord } from "../libs/utils.lib";
 import { selectSymbolInString } from "../libs/utils/mg-utils";
-import { CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
-import { UsageType } from "./card";
+import {
+    CARDS_API_SERVICE,
+    CARDS_SERVICE,
+    MEMORY_NODES_API_SERVICE,
+    MEMORY_NODES_SERVICE
+} from "../services/contianer";
+import { Card, UsageType } from "./card";
 import { CardItem } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { TextWithHighlightedSymbolCardItem } from "./card-items/text-with-highlighted-symbol";
@@ -106,15 +111,16 @@ export class MemoryNode {
         return MEMORY_NODES_API_SERVICE.getItems(this.parents);
     }
 
-    print(usageType: UsageType | null = null, field: 'count' | 'practiceCount' = 'count') {
+    async print(usageType: UsageType | null = null, field: 'count' | 'practiceCount' = 'count') {
         console.log('print', field)
-        const cards = this.getCards(usageType);
-        printParentsPath(this);
+        const cards = await this.getCards(usageType);
+        await printParentsPath(this);
         const aliasesPart = isNil(this.aliases) ? '' : `\t\t${this.aliases}`;
         console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} [${cards.length}] ) \t Usage: ${usageType}`
             + aliasesPart + '\n'
         ));
-        printMemoryNodesWithTitle(this.getChildMemoryNodes());
+        const nodes = await this.getChildMemoryNodes();
+        printMemoryNodesWithTitle(nodes);
         printStats(cards, field);
         // printCardsWithTitle(cards.slice(0, 20))
         printCardsWithTitle(cards)
@@ -177,7 +183,7 @@ export class MemoryNode {
                 const card = await CARDS_SERVICE.createInteractively(this,
                   { usageType, getQuestionTextInTerminal: command === 'c+!' });
                 if (card) {
-                    CARDS_SERVICE.addCard(card);
+                    CARDS_API_SERVICE.addItem(card);
                     this.cards.push(card._id);
                     await this.save();
                 }
@@ -193,14 +199,15 @@ export class MemoryNode {
                 await this.scriptAddTextItems(usageType);
             }
             if (['selc'].includes(command)) {
-                const cards = this.getCards(usageType);
-                const index = await selectIndexFromList(cards.map(c => c.getOneLineQuestion()));
+                const cards = await this.getCards(usageType);
+                const index = await selectIndexFromList(cards.map((c: Card) => c.getOneLineQuestion()));
                 const card = cards[index];
                 await card.interactive();
             }
             if (['apal'].includes(command)) {
-                commandArgs.forEach(alias => {
-                    if (MEMORY_NODES_SERVICE.isAliasUsed(alias)) {
+                commandArgs.forEach(async (alias) => {
+                    const isAliasUsed = await MEMORY_NODES_SERVICE.isAliasUsed(alias);
+                    if (isAliasUsed) {
                         waitForUserInput(`Can't add already existing alias`);
                     } else {
                         this.aliases.push(alias);
@@ -210,7 +217,7 @@ export class MemoryNode {
             }
             if (['sel', 's'].includes(command)) {
                 // selects items and stores them in selectedCard local variable 
-                const cards = this.getCards(usageType);
+                const cards = await this.getCards(usageType);
                 const selectedCards = selectCards(cards, commandArgs);
                 console.log('============== ', selectedCards.length);
                 console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
@@ -313,15 +320,15 @@ export class MemoryNode {
             answer,
             { usageType}
           );
-          CARDS_SERVICE.addCard(card);
+          CARDS_API_SERVICE.addItem(card);
           this.cards.push(card._id);
           await this.save();
         
     }
 
-    getCards(usage: UsageType | null = null) {
-        const cards = CARDS_SERVICE.getCardsByIDs(this.cards);
-        return usage === null ? cards : cards.filter(card => card.usageType === usage);
+    async getCards(usage: UsageType | null = null): Promise<Card[]> {
+        const cards = await CARDS_API_SERVICE.getItems(this.cards);
+        return usage === null ? cards : cards.filter((card: Card) => card.usageType === usage);
     }
 
     private async scriptAddWordWithStress(usageType: UsageType | null): Promise<void> {
@@ -343,7 +350,7 @@ export class MemoryNode {
           [textWithSymbolItem],
           { usageType}
         );
-        CARDS_SERVICE.addCard(card);
+        await CARDS_API_SERVICE.addItem(card);
         this.cards.push(card._id);
         await this.save();
     }
@@ -372,7 +379,7 @@ export class MemoryNode {
           answerArray,
           { usageType}
         );
-        CARDS_SERVICE.addCard(card);
+        await CARDS_API_SERVICE.addItem(card);
         this.cards.push(card._id);
         await this.save();
     }

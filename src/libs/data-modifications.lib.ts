@@ -1,7 +1,7 @@
 import {Subject} from "rxjs";
 import {reactOnKeysPressed} from "./interaction.lib";
 import {addTextCardToNode} from "./memory-nodes.lib";
-import {MEMORY_NODES_SERVICE} from "../services/contianer";
+import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE } from "../services/contianer";
 import {Card} from "../classes/card";
 import { getJSONFileContent } from "ag-utils-lib";
 
@@ -20,19 +20,19 @@ export async function sortCollectionByNodes() {
     const exitSubject = new Subject<void>();
     await reactOnKeysPressed(
       {
-        'a': () => {
+        'a': async () => {
           console.log('active', el)
-          addTextCardToNode(el.name, el.translation, 23);
+          await addTextCardToNode(el.name, el.translation, 23);
           exitSubject.next();
         },
-        'p': () => {
+        'p': async () => {
           console.log('passive', el);
-          addTextCardToNode(el.name, el.translation, 24);
+          await addTextCardToNode(el.name, el.translation, 24);
           exitSubject.next();
         },
-        't': () => {
+        't': async () => {
           console.log('transitional', el);
-          addTextCardToNode(el.name, el.translation, 25);
+          await addTextCardToNode(el.name, el.translation, 25);
           exitSubject.next();
         }
       },
@@ -47,11 +47,11 @@ export async function sortCollectionByNodes() {
   }
 }
 
-export function moveCardsFromOneNodeToAnother(fromNodeId: number, toNodeId: number) {
-  const fromNode = MEMORY_NODES_SERVICE.getMemoryNodeById(fromNodeId);
-  const toNode = MEMORY_NODES_SERVICE.getMemoryNodeById(toNodeId);
+export async function moveCardsFromOneNodeToAnother(fromNodeId: number, toNodeId: number) {
+  const fromNode = await MEMORY_NODES_API_SERVICE.getItem(fromNodeId);
+  const toNode = await MEMORY_NODES_API_SERVICE.getItem(toNodeId);
   if (fromNode && toNode) {
-    const fromNodeCards = fromNode.getCards();
+    const fromNodeCards = await fromNode.getCards();
     // todo make it in 1 step
     fromNodeCards.forEach((card: Card, index: number) => {
       console.log(index, `moving ${card._id}`)

@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { printParentsPath } from "../libs/memory-nodes.lib";
 import { IQuizState } from "../libs/quiz.lib";
 import { newLineConcatStringReducer } from "../libs/utils.lib";
-import { CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
+import { CARDS_API_SERVICE, CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
 import { CardItem, createCardItemFromObj } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { MemoryNode } from "./memory-node";
@@ -54,12 +54,12 @@ export class Card {
     return new Card(obj._id, question, answer, obj.parentNodes, obj.count, obj.needed, obj.used, obj);
   }
 
-  getParentNodes(): MemoryNode[] {
-    return MEMORY_NODES_API_SERVICE.getMemoryNodesByIDs(this.parentNodes);
+  async getParentNodes(): Promise<MemoryNode[]> {
+    return MEMORY_NODES_API_SERVICE.getItems(this.parentNodes);
   }
 
   update() {
-    CARDS_SERVICE.updateCard(this);
+    CARDS_API_SERVICE.updateItem(this);
   }
 
   increaseCount(): void {
@@ -156,14 +156,15 @@ export class Card {
 
 
   save() {
-    CARDS_SERVICE.updateCard(this);
+    CARDS_API_SERVICE.updateItem(this);
   }
 
   async interactive(): Promise<void> {
     let command;
     while (true) {
       console.clear();
-      printParentsPath(this.getParentNodes()[0]);
+      const parent = (await this.getParentNodes())[0];
+      await printParentsPath(parent);
       await this.printQuestion();
       command = await getUserInput('Enter a command');
       if (command === 'a') {

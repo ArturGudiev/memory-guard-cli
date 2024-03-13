@@ -1,13 +1,18 @@
 import {MemoryNode} from "../classes/memory-node"
 import chalk from 'chalk';
-import {CARDS_SERVICE, MEMORY_NODES_API_SERVICE} from "../services/contianer";
+import {
+  CARDS_API_SERVICE,
+  CARDS_SERVICE,
+  MEMORY_NODES_API_SERVICE,
+  MEMORY_NODES_SERVICE
+} from "../services/contianer";
 import {Card} from "../classes/card";
 import {printArrayAsTree} from "./utils/io.lib";
 import {getUserInput} from "ag-utils-lib";
 
 export async function addNewMemoryNodesHandler(parent: MemoryNode): Promise<void> {
   const name = await getUserInput('Enter name');
-  MEMORY_NODES_API_SERVICE.addNewMemoryNodeWithNameAndParents(name, [parent]);
+  await MEMORY_NODES_SERVICE.addNewMemoryNodeWithNameAndParents(name, [parent]);
 }
 
 export function printMemoryNodes(nodes: MemoryNode[]) {
@@ -194,32 +199,33 @@ export function selectCards(cards: Card[], commandArgs: string[] | string): Card
   return cardsToReturn;
 }
 
-export function printParentsPath(node: MemoryNode) {
-  const parentsPath = getParentsPath(node);
+export async function printParentsPath(node: MemoryNode) {
+  const parentsPath = await getParentsPath(node);
   printArrayAsTree(parentsPath);
 }
 
-export function getParentsPath(obj: MemoryNode): string[] {
+export async function getParentsPath(obj: MemoryNode): Promise<string[]> {
   const getNodeDescriptionInParentsPath = (node: MemoryNode) => `${node._id} ` + node.name
   const parentsPath: string[] = [getNodeDescriptionInParentsPath(obj)];
 
-  let parent: MemoryNode | null = obj.getParents()[0];
+  let parent: MemoryNode | null = (await obj.getParents())[0];
 
   while ( parent ) {
     parentsPath.push(getNodeDescriptionInParentsPath(parent));
-    parent = parent.getParents().length > 0 ? parent.getParents()[0] : null;
+    const parents = await parent.getParents();
+    parent = parents.length > 0 ? parents[0] : null;
   }
   return parentsPath.reverse();
 }
 
-export function addTextCardToNode(questionText: string, answerText: string, id: number) {
-  const card = CARDS_SERVICE.createFromText(questionText, answerText, id);
+export async function addTextCardToNode(questionText: string, answerText: string, id: number) {
+  const card = await CARDS_SERVICE.createFromText(questionText, answerText, id);
   if (card) {
-    const node = MEMORY_NODES_API_SERVICE.getMemoryNodeById(id);
+    const node = await MEMORY_NODES_API_SERVICE.getItem(id);
     if (node) {
-      CARDS_SERVICE.addCard(card);
+      await CARDS_API_SERVICE.addItem(card);
       node.cards.push(card._id);
-      node?.save();
+      await node?.save();
     }
   }
 }

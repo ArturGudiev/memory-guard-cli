@@ -2,7 +2,7 @@ import { ArgumentParser } from "argparse";
 import { addTextCardToNode } from "./libs/memory-nodes.lib";
 import {
   CARDS_API_SERVICE,
-  CARDS_SERVICE,
+  CARDS_SERVICE, MEMORY_NODES_API_SERVICE,
   MEMORY_NODES_SERVICE, META_SERVICE,
   PRACTICE_ITEMS_SERVICE,
   USERS_API_SERVICE
@@ -63,7 +63,7 @@ async function main() {
   const args = parser.parse_args();
   if (args.memory_node) {
     const nodeId = args.memory_node;
-    const node = MEMORY_NODES_SERVICE.getMemoryNodeById(nodeId);
+    const node = await MEMORY_NODES_API_SERVICE.getItem(nodeId);
     await node?.interactive();
   }
   if (args.add_text_item) {
@@ -75,7 +75,7 @@ async function main() {
   if (args.memory_node_interactive) {
     console.log('alias ', args.alias);
     if (args.alias) {
-      const node = MEMORY_NODES_SERVICE.getMemoryNodeByAlias(args.alias);
+      const node = await MEMORY_NODES_SERVICE.getMemoryNodeByAlias(args.alias);
       node?.interactive();
       return;
     } else {

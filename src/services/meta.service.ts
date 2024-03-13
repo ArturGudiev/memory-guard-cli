@@ -18,7 +18,7 @@ export class MetaService {
     return this.getNextFieldValue('userId');
   }
 
-  getMemoryNodeId(): number {
+  getNextMemoryNodeId(): number {
     return this.getNextFieldValue('memoryNodeId');
   }
 

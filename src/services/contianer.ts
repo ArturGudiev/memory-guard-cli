@@ -1,6 +1,6 @@
-import {ICardsService, IMemoryNodesService, IPracticeItemsService} from "./service-interfaces";
-import {MemoryNodesCliService} from "./memory-nodes.service";
-import {CardsCliService} from "./cards-cli.service";
+import {IPracticeItemsService} from "./service-interfaces";
+import {MemoryNodesService} from "./memory-nodes.service";
+import {CardsService} from "./cards.service";
 import { PracticeItemsCliService } from "./practice-items-cli.service";
 import {User} from "../classes/user";
 import {ApiService} from "../interfaces/service-interfaces";
@@ -22,8 +22,8 @@ export const db = client.db(dbName);
 
 
 export class Container {
-  memoryNodesService: IMemoryNodesService;
-  cardsService: ICardsService;
+  memoryNodesService: MemoryNodesService;
+  cardsService: CardsService;
   practiceItemsService: IPracticeItemsService;
   usersApiService: ApiService<User>;
   usersService: UsersService;
@@ -39,8 +39,8 @@ export class Container {
     const dbName = 'memory-guard-v2';
     const db = client.db(dbName);
 
-    this.memoryNodesService = new MemoryNodesCliService();
-    this.cardsService = new CardsCliService();
+    this.memoryNodesService = new MemoryNodesService();
+    this.cardsService = new CardsService();
     this.practiceItemsService = new PracticeItemsCliService();
     this.usersApiService = new UsersApiCliService(USERS_FILE);
     this.usersService = new UsersService();
@@ -59,7 +59,7 @@ export class Container {
 }
 
 export const SERVICE_CONTAINER = Container.getInstance();
-export const MEMORY_NODES_SERVICE: IMemoryNodesService = SERVICE_CONTAINER.memoryNodesService;
+export const MEMORY_NODES_SERVICE = SERVICE_CONTAINER.memoryNodesService;
 export const CARDS_SERVICE = SERVICE_CONTAINER.cardsService;
 export const PRACTICE_ITEMS_SERVICE = SERVICE_CONTAINER.practiceItemsService;
 export const USERS_API_SERVICE = SERVICE_CONTAINER.usersApiService;
