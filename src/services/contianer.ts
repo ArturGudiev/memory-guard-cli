@@ -15,6 +15,7 @@ import { Card, MemoryNode } from "../classes";
 import { MongoClient } from "mongodb";
 import { MemoryNodesApiMongoService } from "./api/mongo/momery-nodes-api-mongo.service";
 import { MetaApiMongoService } from "./api/mongo/meta-api-mongo.service";
+import { UsersApiMongoService } from "./api/mongo/users-api-mongo.service";
 
 const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
@@ -42,7 +43,7 @@ export class Container {
     this.memoryNodesService = new MemoryNodesService();
     this.cardsService = new CardsService();
     this.practiceItemsService = new PracticeItemsCliService();
-    this.usersApiService = new UsersApiCliService(USERS_FILE);
+    this.usersApiService = new UsersApiMongoService(db, 'users');
     this.usersService = new UsersService();
     this.metaService = new MetaService();
     this.metaApiService = new MetaApiMongoService(db, 'meta');

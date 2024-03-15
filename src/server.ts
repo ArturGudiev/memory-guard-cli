@@ -12,20 +12,30 @@ import cors from 'cors';
 import {selectCards} from "./libs/memory-nodes.lib";
 
 const jsonParser = bodyParser.json()
-
+// import basicAuth from 'express-basic-auth';
 const app = express();
 app.use(cors());
+// app.use(basicAuth({
+//     users: { 'arturgudiev': 'euf$8dj3%6&*skd' }
+//   }))
 app.use((req: any, res: any, next: any) => {
     console.log('\t',req.url);
     next();
 })
-const port = 3033;
+const port = process.env.PORT || 3033;
 
 app.use(jsonParser);
 app.get('/', (req: any, res: any) => {
     res.send({ text: 'Hello World!' });
 });
 
+app.get('/hello', (req: any, res: any) => {
+    res.send({ text: 'Hello World!' });
+});
+
+app.get('/hello2', (req: any, res: any) => {
+    res.send({ text: 'Hello World!' });
+});
 //---------cards------------------
 
 app.get('/card/:id', async function (req: any, res: any) {
@@ -117,9 +127,9 @@ app.get('/practice-item-by-card/:id', function (req: any, res: any) {
     res.send(practiceItem);
 });
 
-//---------practice-items------------------
+//----------------practice-items---------
 
-//---------nodes-----------------
+//-----------------nodes-----------------
 app.get('/stats-by-node/:id', async function (req: any, res: any) {
     const id = +req.params.id;
     const node = await MEMORY_NODES_API_SERVICE.getItem(id);
@@ -156,18 +166,15 @@ app.get('/memory-node/:id', async (req: any, res: any) => {
     const node = await MEMORY_NODES_API_SERVICE.getItem(+req.params.id);
     res.send(node);
 });
-//---------nodes-----------------
+//------------nodes-----------------
 // ---------- users ----------------
 app.post('/auth-user', async function (req: { body: {username: string, password: string} }, res: any) {
     const username = req.body.username;
     const password = req.body.password;
     const user = await USERS_SERVICE.getUserByCredentials(username, password);
-    res.send(user ?? null);
+    res.send(user ?? {user: 'notfound'});
 });
-
 // ---------- users ----------------
-
-
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
