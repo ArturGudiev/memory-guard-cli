@@ -1,52 +1,10 @@
 import { ArgumentParser } from "argparse";
 import { addTextCardToNode } from "./libs/memory-nodes.lib";
-import {
-  CARDS_API_SERVICE,
-  CARDS_SERVICE, MEMORY_NODES_API_SERVICE,
-  MEMORY_NODES_SERVICE, META_SERVICE,
-  PRACTICE_ITEMS_SERVICE,
-  USERS_API_SERVICE
-} from "./services/contianer";
-import { getJSONFileContent } from "ag-utils-lib";
-import { PracticeItem } from "./classes/practice-item";
-import {User} from "./classes/user";
-import {PRACTICE_ITEMS_FILE} from "./constants/files.constant";
-import { MongoClient, ObjectId } from "mongodb";
-import { Card, MemoryNode } from "./classes";
-
-// const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
-// const client = new MongoClient(uri);
-// const dbName = 'memory-guard-v2';
-// export const db = client.db(dbName);
-
-// export async function getCollectionWord(collectionName: string, _id: ObjectId): Promise<any> {
-//   const collection = db.collection(collectionName);
-//   return await collection.findOne({_id: _id});
-// }
-
+import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE, } from "./services/contianer";
 
 async function temp() {
-  // const cards = await CARDS_API_SERVICE.getItems([7, 343])
-  // @ts-ignore
-  const card = await CARDS_API_SERVICE.getItem(7);
-
-  if ( card ) {
-    // card.count--;
-    await CARDS_API_SERVICE.updateItem(card);
-    // console.log('DONE');
-    console.log('card', card);
-  } else {
-    console.log('NO');
-  }
-
-  // const card2 = new Card(META_SERVICE.getNextCardId(), [], [], [], 0, 0, 0, {
-  //   reverseCount: 0,
-  //   practiceCount: 0,
-  //   usageType: 'common'
-  // });
-  // CARDS_API_SERVICE.addItem(card2);
+  META_SERVICE.getNextFieldValue('memoryNodeId').then(val => console.log(val));
 }
-
 
 async function main() {
   const parser = new ArgumentParser({

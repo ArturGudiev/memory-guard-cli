@@ -314,7 +314,7 @@ export class MemoryNode {
         const items = input.split('=');
         const question = [new TextCardItem(items[0])];
         const answer = [new TextCardItem(items[1])];
-        const card = CARDS_SERVICE.createCardByQuestionAndAnswer(
+        const card = await CARDS_SERVICE.createCardByQuestionAndAnswer(
             this,
             question,
             answer,
@@ -344,7 +344,7 @@ export class MemoryNode {
             return;
         }
         const textWithSymbolItem = new TextWithHighlightedSymbolCardItem(word, index);
-        const card = CARDS_SERVICE.createCardByQuestionAndAnswer(
+        const card = await CARDS_SERVICE.createCardByQuestionAndAnswer(
           this,
           [textItem],
           [textWithSymbolItem],
@@ -373,7 +373,7 @@ export class MemoryNode {
             const textWithSymbolItem = new TextWithHighlightedSymbolCardItem(word, index);
             answerArray.push(textWithSymbolItem);
         }
-        const card = CARDS_SERVICE.createCardByQuestionAndAnswer(
+        const card = await CARDS_SERVICE.createCardByQuestionAndAnswer(
           this,
           [textItem],
           answerArray,

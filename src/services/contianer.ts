@@ -14,12 +14,12 @@ import { CardsApiMongoService } from "./api/mongo/cards-api-mongo.service";
 import { Card, MemoryNode } from "../classes";
 import { MongoClient } from "mongodb";
 import { MemoryNodesApiMongoService } from "./api/mongo/momery-nodes-api-mongo.service";
+import { MetaApiMongoService } from "./api/mongo/meta-api-mongo.service";
 
 const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 const dbName = 'memory-guard-v2';
 export const db = client.db(dbName);
-
 
 export class Container {
   memoryNodesService: MemoryNodesService;
@@ -28,7 +28,7 @@ export class Container {
   usersApiService: ApiService<User>;
   usersService: UsersService;
   metaService: MetaService;
-  metaApiService: MetaApiCliService;
+  metaApiService: MetaApiMongoService;
   cardsApiService: ApiService<Card>;
   memoryNodesApiService: ApiService<MemoryNode>;
   private static instance: Container | null = null;
@@ -45,7 +45,7 @@ export class Container {
     this.usersApiService = new UsersApiCliService(USERS_FILE);
     this.usersService = new UsersService();
     this.metaService = new MetaService();
-    this.metaApiService = new MetaApiCliService(META_FILE);
+    this.metaApiService = new MetaApiMongoService(db, 'meta');
     this.cardsApiService = new CardsApiMongoService(db, 'cards');
     this.memoryNodesApiService = new MemoryNodesApiMongoService(db, 'memory-nodes');
   }
@@ -68,4 +68,3 @@ export const META_SERVICE = SERVICE_CONTAINER.metaService;
 export const META_API_SERVICE = SERVICE_CONTAINER.metaApiService;
 export const CARDS_API_SERVICE = SERVICE_CONTAINER.cardsApiService;
 export const MEMORY_NODES_API_SERVICE = SERVICE_CONTAINER.memoryNodesApiService;
-

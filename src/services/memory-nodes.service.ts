@@ -18,7 +18,7 @@ export class MemoryNodesService {
    * @param parents
    */
   async addNewMemoryNodeWithNameAndParents(name: string, parents: MemoryNode[]): Promise<void> {
-    const newNodeId = META_SERVICE.getNextMemoryNodeId();
+    const newNodeId = await META_SERVICE.getNextMemoryNodeId();
     const newNode =
       new MemoryNode(newNodeId, name, [], parents.map(p => p._id), [], []);
     await MEMORY_NODES_API_SERVICE.addItem(newNode);
