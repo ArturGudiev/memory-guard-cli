@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start2": "npx ts-node  src/main.ts",
-    "start1": "npx ts-node src/server.ts",
+    "server": "npx ts-node src/server.ts",
     "start": "node ./bld/src/server.js",
     "temp": "npx ts-node src/main.ts --temp",
     "start3": "npx ts-node  src/main.ts",
@@ -41,6 +41,7 @@
     "console-table-printer": "^2.11.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-basic-auth": "^1.2.1",
     "highlight.js": "^11.9.0",
     "lodash": "^4.17.21",
     "mongodb": "^6.4.0",

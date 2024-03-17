@@ -1,9 +1,11 @@
 import { ArgumentParser } from "argparse";
 import { addTextCardToNode } from "./libs/memory-nodes.lib";
-import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE, } from "./services/contianer";
+import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE, USERS_API_SERVICE, } from "./services/contianer";
 
 async function temp() {
-  META_SERVICE.getNextFieldValue('memoryNodeId').then(val => console.log(val));
+  console.log('temp');
+  const users = await USERS_API_SERVICE.getAllItems();
+  console.log(users);
 }
 
 async function main() {
