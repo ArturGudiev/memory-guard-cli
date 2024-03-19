@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import {COLORS} from "console-table-printer/dist/src/utils/table-constants";
 
 export function getTreeFromArray(arr: string[]): any {
   const tree: any = {name: arr[0], children: []};
@@ -19,7 +18,7 @@ export function printTreeInColor(tree: any): void {
   const printTree = require('print-tree');
   printTree(
     tree,
-    (node: any) => chalk.hex(COLORS[node.depth === 0 ? 0 : node.depth % COLORS.length])(node.name),
+    // (node: any) => chalk.hex(COLORS[node.depth === 0 ? 0 : node.depth % COLORS.length])(node.name),
     (node: any) => node.children,
   );
 }

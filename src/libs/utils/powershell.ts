@@ -3,7 +3,7 @@ import {exec, spawn} from "child_process";
 export function runPowerShellCommand(command: string) {
   const pwshProcess = spawn('pwsh.exe', ['-Command', command]);
 
-    pwshProcess.stdout.on('data', (data) => {
+    pwshProcess.stdout.on('data', (data: any) => {
       console.log(`PowerShell output:\n${data}`);
     });
     pwshProcess
