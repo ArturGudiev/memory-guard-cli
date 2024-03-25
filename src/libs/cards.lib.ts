@@ -9,16 +9,26 @@ import {ImageCardItem} from "../classes/card-items/image-card-item";
 import {TextWithHighlightedSymbolCardItem} from "../classes/card-items/text-with-highlighted-symbol";
 import {CodeCardItem} from "../classes/card-items/code-card-item";
 import { Table } from "console-table-printer";
+import { FormulaCardItem } from "../classes/card-items/formula-card-item";
 
-export async function fillCardItemsArray(cardItems: CardItem[], prefix = '') {
+export async function fillCardItemsArray(cardItems: CardItem[], prefix = '', message?: string) {
   while (true) {
     console.clear();
+    if (message) {
+      console.log(message);
+    }
     printCardItemsArray(cardItems, prefix);
     const command = await getUserInput('Enter a question command');
     if (command.startsWith('t+') ) {
       const textItem = await TextCardItem.createInteractively(command === 't+!');
       if (textItem !== null) {
         cardItems.push(textItem);
+      }
+    }
+    if (command.startsWith('f+')) {
+      const formulaItem = await FormulaCardItem.createInteractively();
+      if (formulaItem !== null) {
+        cardItems.push(formulaItem);
       }
     }
     if (command.startsWith('i+') ) {

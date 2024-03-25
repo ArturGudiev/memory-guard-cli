@@ -1,14 +1,23 @@
-import { getUserInput, tab, waitForUserInput } from "ag-utils-lib";
+import { exit, getInputFromEditor, getUserInput, tab, waitForUserInput } from "ag-utils-lib";
 import chalk from "chalk";
 import { printParentsPath } from "../libs/memory-nodes.lib";
 import { IQuizState } from "../libs/quiz.lib";
-import { newLineConcatStringReducer } from "../libs/utils.lib";
+import { getInput, newLineConcatStringReducer } from "../libs/utils.lib";
 import { CARDS_API_SERVICE, CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
 import { CardItem, createCardItemFromObj } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { MemoryNode } from "./memory-node";
+import { getActionByCommand, splitOnFirstWordAndArguments } from "../libs/utils-to-lib";
 
 export type UsageType = 'active' | 'passive' | 'transitional' | 'common';
+
+const CARD_INTERACTIVE_ACTIONS_MAP = {
+  PRINT_ANSWER: ['a'],
+  BACK: ['u', 'b', 'back'],
+  EDIT: ['e', 'edit'],
+  EXIT: ['x', 'exit'],
+}
+
 
 export class Card {
   _id: number;
@@ -97,16 +106,16 @@ export class Card {
     //   await showHTMLInBrowser(html);
 
     // } else {
-      this.question.forEach((cardItem: CardItem) => {
-        cardItem.print()
-      });
+    this.question.forEach((cardItem: CardItem) => {
+      cardItem.print()
+    });
     // }
   }
 
   getQuestionHTML(): string {
     return this.question
-    .map((cardItem: CardItem) => cardItem.getHTML())
-    .reduce(newLineConcatStringReducer);
+      .map((cardItem: CardItem) => cardItem.getHTML())
+      .reduce(newLineConcatStringReducer);
   }
 
   async printAnswer() {
@@ -123,8 +132,8 @@ export class Card {
 
   getAnswerHTML(): string {
     return this.answer
-    .map((cardItem: CardItem) => cardItem.getHTML())
-    .reduce(newLineConcatStringReducer);
+      .map((cardItem: CardItem) => cardItem.getHTML())
+      .reduce(newLineConcatStringReducer);
   }
 
 
@@ -163,18 +172,55 @@ export class Card {
     let command;
     while (true) {
       console.clear();
-      const parent = (await this.getParentNodes())[0];
-      await printParentsPath(parent);
-      await this.printQuestion();
-      command = await getUserInput('Enter a command');
-      if (command === 'a') {
-        await this.printAnswer();
-        await waitForUserInput();
+      await this.print();
+      const val = await getUserInput('Enter a next card command');
+      const [command, args] = splitOnFirstWordAndArguments(val);
+      const action = getActionByCommand(CARD_INTERACTIVE_ACTIONS_MAP, command);
+      if (!action) {
+        continue;
       }
-      if (command === 'x') {
-        return;
+      switch (action) {
+        case "EDIT":
+          const editedValue = await getInputFromEditor('Edit card value', {
+            extension: 'json',
+            originalContent: JSON.stringify(this, null, '\t')
+          })
+          console.log(editedValue);
+          const updatedCard = Card.createFromObj(JSON.parse(editedValue));
+          await CARDS_API_SERVICE.updateItem(updatedCard);
+          this.updateInstance(updatedCard);
+          await waitForUserInput();
+          break;
+        case "EXIT":
+          exit();
+          break;
+        case "PRINT_ANSWER":
+          await this.printAnswer();
+          await waitForUserInput();
+          break;
+        case "BACK":
+          return;
       }
     }
 
+  }
+
+  private async print() {
+    const parent = (await this.getParentNodes())[0];
+    await printParentsPath(parent);
+    console.log(`Card ${this._id}`)
+    await this.printQuestion();
+  }
+
+  private updateInstance(otherInstance: Card) {
+    this.question = otherInstance.question;
+    this.answer = otherInstance.answer;
+    this.parentNodes = otherInstance.parentNodes;
+    this.used = otherInstance.used;
+    this.needed = otherInstance.needed;
+    this.count = otherInstance.count;
+    this.reverseCount = otherInstance.reverseCount;
+    this.practiceCount = otherInstance.practiceCount;
+    this.usageType = otherInstance.usageType;
   }
 }

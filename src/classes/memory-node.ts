@@ -1,11 +1,4 @@
-import {
-    exit,
-    getUserInput,
-    getUserInputUnicode,
-    removeFirstArgument,
-    selectIndexFromList,
-    waitForUserInput
-} from "ag-utils-lib";
+import { exit, getUserInput, getUserInputUnicode, selectIndexFromList, waitForUserInput } from "ag-utils-lib";
 import { ArgumentParser } from "argparse";
 import chalk from 'chalk';
 import { isNil } from "lodash";
@@ -30,10 +23,24 @@ import { Card, UsageType } from "./card";
 import { CardItem } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { TextWithHighlightedSymbolCardItem } from "./card-items/text-with-highlighted-symbol";
+import { getActionByCommand, splitOnFirstWordAndArguments } from "../libs/utils-to-lib";
 
-// export class MemoryNode {
-//     root: MemoryNode | null = null;
-// }
+const  MEMORY_NODE_INTERACTIVE_ACTIONS_MAP = {
+    UP: ['u'],
+    EXIT: ['x', 'exit'],
+    NAVIGATE: ['nav'],
+    ADD_MEMORY_NODE: ['n+', 'node+'],
+    DELETE: ['del', 'delete'],
+    CHANGE_FIELD: ['cf', 'change_field'],
+    ADD_CARD: ['+', 'c+', 'c+!', 'card+'],
+    ADD_WORD_WITH_STRESS: ['sc_s', 'scs', 'ысы'],
+    ADD_SEVERAL_WORDS_WITH_STRESS: ['scs2', 'ысы2'],
+    ADD_TEXT_ITEMS: ['tt', 'ее'],
+    SELECT_CARD: ['selc'],
+    APPEND_ALIAS: ['apal'],
+    SELECT_CARDS: ['sel', 's'],
+    SET_USAGE_TYPE: ['us', 'usage'],
+}
 
 export type NodeChildren = {[key: string]: number[]};
 
@@ -134,178 +141,167 @@ export class MemoryNode {
         let field: 'count' | 'practiceCount' = 'count'
         while (true) {
             console.clear();
-            this.print(usageType, field);
-            const commandRaw = await getUserInputUnicode('Enter a command');
+            await this.print(usageType, field);
+            const val = await getUserInputUnicode('Enter memory node command');
+            const [command, args] = splitOnFirstWordAndArguments(val);
+
+            // const commandRaw = await getUserInputUnicode('Enter a command');
             // const commandRaw = await getUserInput('Enter a command');
-            const command = commandRaw.split(' ')[0];
-            const commandArgs = removeFirstArgument(commandRaw.split(' '));
+            // const command = commandRaw.split(' ')[0];
+            // const commandArgs = removeFirstArgument(commandRaw.split(' '));
             if (!command) {
                 continue;
             }
-            if (Number.isInteger(Number(command))) {
-                const index = Number(command) - 1;
-                if (!isInRange(index, '[', 0, this.children.length, ')')) {
+            const action = getActionByCommand(MEMORY_NODE_INTERACTIVE_ACTIONS_MAP, command);
+            if (!action) {
+                if (Number.isInteger(Number(command))) {
+                    const index = Number(command) - 1;
+                    if (!isInRange(index, '[', 0, this.children.length, ')')) {
+                        continue;
+                    }
+                    const child = await MEMORY_NODES_API_SERVICE.getItem(this.children[index]);
+                    if (child) {
+                        await child.interactive();
+                    }
                     continue;
                 }
-                const child = await MEMORY_NODES_API_SERVICE.getItem(this.children[index]);
-                if (child) {
-                    await child.interactive();
-                }
             }
-            if (command === 'u') {
-                if (this.parents.length === 0) {
-                    continue;
-                }
-                await goToParentHandler(this);
-                continue;
-            }
-            if (command === 'x') {
-                exit();
-            }
-            if (command === 'nav') {
-                const id = +commandArgs[0];
-                const node = await MEMORY_NODES_API_SERVICE.getItem(id);
-                node?.interactive();
-                continue;
-            }
-            if (command === 'n+') {
-                await addNewMemoryNodesHandler(this);
-            }
-            if (command === 'del') {
-                const deleted = await deleteMemoryNodeHandler(this);
-                continue;
-            }
-            if (command === 'cf' || command === 'change_field') {
-                field = field === 'count' ? 'practiceCount' : 'count'
-                continue;
-            }
-            if ( ['+', 'c+', 'c+!', 'card+'].includes(command) ) {
-                const card = await CARDS_SERVICE.createInteractively(this,
-                  { usageType, getQuestionTextInTerminal: command === 'c+!' });
-                if (card) {
-                    CARDS_API_SERVICE.addItem(card);
-                    this.cards.push(card._id);
+            switch (action) {
+                case 'UP':
+                    if (this.parents.length === 0) {
+                        continue;
+                    }
+                    await goToParentHandler(this);
+                    break;
+                case 'EXIT':
+                    exit();
+                    break;
+                case 'NAVIGATE':
+                    const id = +args[0];
+                    const node = await MEMORY_NODES_API_SERVICE.getItem(id);
+                    await node?.interactive();
+                    break;
+                case 'ADD_MEMORY_NODE':
+                    await addNewMemoryNodesHandler(this);
+                    break;
+                case 'DELETE':
+                    await deleteMemoryNodeHandler(this)
+                    break;
+                case 'CHANGE_FIELD':
+                    field = field === 'count' ? 'practiceCount' : 'count'
+                    break;
+                case 'ADD_CARD':
+                    const card = await CARDS_SERVICE.createInteractively(this,
+                      { usageType, getQuestionTextInTerminal: command === 'c+!' });
+                    if (card) {
+                        CARDS_API_SERVICE.addItem(card);
+                        this.cards.push(card._id);
+                        await this.save();
+                    }
+                    await waitForUserInput();
+                    break;
+                case 'ADD_WORD_WITH_STRESS':
+                    await this.scriptAddWordWithStress(usageType, args);
+                    break;
+                case 'ADD_SEVERAL_WORDS_WITH_STRESS':
+                    await this.scriptAddSeveralWordsWithStress(usageType, args);
+                    break;
+                case 'ADD_TEXT_ITEMS':
+                    await this.scriptAddTextItems(usageType);
+                    break;
+                case 'SELECT_CARD':
+                    const cards = await this.getCards(usageType);
+                    const index = await selectIndexFromList(cards.map((c: Card) => c.getOneLineQuestion()));
+                    const selectedCard = cards[index];
+                    await selectedCard.interactive();
+                    break;
+                case 'APPEND_ALIAS':
+                    args.forEach(async (alias) => {
+                        const isAliasUsed = await MEMORY_NODES_SERVICE.isAliasUsed(alias);
+                        if (isAliasUsed) {
+                            waitForUserInput(`Can't add already existing alias`);
+                        } else {
+                            this.aliases.push(alias);
+                        }
+                    });
                     await this.save();
-                }
-                await waitForUserInput();
-            }
-            if (['sc_s', 'scs', 'ысы'].includes(command)) {
-                await this.scriptAddWordWithStress(usageType);
-            }
-            if (['scs2', 'ысы2'].includes(command)) {
-                await this.scriptAddSeveralWordsWithStress(usageType);
-            }
-            if (['tt', 'ее'].includes(command)) {
-                await this.scriptAddTextItems(usageType);
-            }
-            if (['selc'].includes(command)) {
-                const cards = await this.getCards(usageType);
-                const index = await selectIndexFromList(cards.map((c: Card) => c.getOneLineQuestion()));
-                const card = cards[index];
-                await card.interactive();
-            }
-            if (['apal'].includes(command)) {
-                commandArgs.forEach(async (alias) => {
-                    const isAliasUsed = await MEMORY_NODES_SERVICE.isAliasUsed(alias);
-                    if (isAliasUsed) {
-                        waitForUserInput(`Can't add already existing alias`);
-                    } else {
-                        this.aliases.push(alias);
-                    }
-                });
-                await this.save();
-            }
-            if (['sel', 's'].includes(command)) {
-                // selects items and stores them in selectedCard local variable 
-                const cards = await this.getCards(usageType);
-                const selectedCards = selectCards(cards, commandArgs);
-                console.log('============== ', selectedCards.length);
-                console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
-                // printCardsArray(selectedCards);
-                const additionalCommand = await getUserInput('Enter the command');
-                if (additionalCommand.startsWith('q') || additionalCommand.startsWith('quiz')) {
-                    const additionalCommandArgsString = removeFirstWord(additionalCommand);
+                    break;
+                case 'SELECT_CARDS':
+                    // selects items and stores them in selectedCard local variable
+                    const cardsByUsageType = await this.getCards(usageType);
+                    const selectedCards = selectCards(cardsByUsageType, args);
+                    console.log('============== ', selectedCards.length);
+                    console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
+                    // printCardsArray(selectedCards);
+                    const additionalCommand = await getUserInput('Enter the command');
+                    if (additionalCommand.startsWith('q') || additionalCommand.startsWith('quiz')) {
+                        const additionalCommandArgsString = removeFirstWord(additionalCommand);
 
-                    const parser = new ArgumentParser({
-                        description: 'Argparse example'
-                    });
-                    parser.add_argument('--count', {type: 'int'});
-                    parser.add_argument('--until', {type: 'int'});
-                    const args = parser.parse_args(additionalCommandArgsString.split(' '));
-                    let options: ITestOptions = {};
-                    if (args.count) {
-                        options.rightAnswersQuantity = args.count;
+                        const parser = new ArgumentParser({
+                            description: 'Argparse example'
+                        });
+                        parser.add_argument('--count', {type: 'int'});
+                        parser.add_argument('--until', {type: 'int'});
+                        const args = parser.parse_args(additionalCommandArgsString.split(' '));
+                        let options: ITestOptions = {};
+                        if (args.count) {
+                            options.rightAnswersQuantity = args.count;
+                        }
+                        if (args.until) {
+                            options.until = args.until;
+                        }
+                        if (!options) {
+                            options = {rightAnswersQuantity: 5}
+                        }
+                        await testCards(selectedCards, options);
                     }
-                    if (args.until) {
-                        options.until = args.until;
-                    }
-                    if (!options) {
-                        options = {rightAnswersQuantity: 5}
-                    }
-                    await testCards(selectedCards, options);
-                }
 
-                if (additionalCommand.startsWith('pq') || additionalCommand.startsWith('pquiz') || additionalCommand.startsWith('practice-quiz')) {
-                    const additionalCommandArgsString = removeFirstWord(additionalCommand);
+                    if (additionalCommand.startsWith('pq') || additionalCommand.startsWith('pquiz') || additionalCommand.startsWith('practice-quiz')) {
+                        const additionalCommandArgsString = removeFirstWord(additionalCommand);
 
-                    const parser = new ArgumentParser({
-                        description: 'Argparse example'
-                    });
-                    parser.add_argument('--count', {type: 'int'});
-                    parser.add_argument('--until', {type: 'int'});
-                    const args = parser.parse_args(additionalCommandArgsString.split(' '));
-                    let options: ITestOptions = {};
-                    if (args.count) {
-                        options.rightAnswersQuantity = args.count;
+                        const parser = new ArgumentParser({
+                            description: 'Argparse example'
+                        });
+                        parser.add_argument('--count', {type: 'int'});
+                        parser.add_argument('--until', {type: 'int'});
+                        const args = parser.parse_args(additionalCommandArgsString.split(' '));
+                        let options: ITestOptions = {};
+                        if (args.count) {
+                            options.rightAnswersQuantity = args.count;
+                        }
+                        if (args.until) {
+                            options.until = args.until;
+                        }
+                        if (!options) {
+                            options = {rightAnswersQuantity: 5}
+                        }
+                        await practiceTestCards(selectedCards, options);
                     }
-                    if (args.until) {
-                        options.until = args.until;
+                    break;
+                case 'SET_USAGE_TYPE':
+                    if (args.length === 0) {
+                        continue;
                     }
-                    if (!options) {
-                        options = {rightAnswersQuantity: 5}
+                    switch (args[0]) {
+                        case 'a':
+                            usageType = 'active';
+                            break;
+                        case 'p':
+                            usageType = 'passive';
+                            break;
+                        case 't':
+                            usageType = 'transitional';
+                            break;
+                        case 'c':
+                        case 'd':
+                            usageType = 'common';
+                            break;
+                        case 'n':
+                            usageType = null;
+                            break;
                     }
-                    await practiceTestCards(selectedCards, options);
-                }
+                    break;
             }
-            if (['us', 'usage'].includes(command)) {
-                if (commandArgs.length === 0) {
-                    continue;
-                }
-                switch (commandArgs[0]) {
-                    case 'a':
-                        usageType = 'active';
-                        break;
-                    case 'p':
-                        usageType = 'passive';
-                        break;
-                    case 't':
-                        usageType = 'transitional';
-                        break;
-                    case 'c':
-                    case 'd':
-                        usageType = 'common';
-                        break;
-                    case 'n':
-                        usageType = null;
-                        break;
-                }
-            }
-            if ( ['sc'].includes(command) ) {
-
-            }
-            if (['x'].includes(command)) {
-                exit();
-            }
-            // if (command[0] === 'h') {
-            //     const secondPart = command.substring(1);
-            //     if (Number.isInteger(Number(secondPart))) {
-            //         selectedHierarchy = Number(secondPart) - 1;
-            //         continue;
-            //     }
-            // }
-            // if (command.length > 0) {
-            //
-            // }
         }
 
     }
@@ -331,8 +327,8 @@ export class MemoryNode {
         return usage === null ? cards : cards.filter((card: Card) => card.usageType === usage);
     }
 
-    private async scriptAddWordWithStress(usageType: UsageType | null): Promise<void> {
-        const word = await getUserInputUnicode('Enter a word');
+    private async scriptAddWordWithStress(usageType: UsageType | null, args: string[]): Promise<void> {
+        const word = args.length === 0 ? await getUserInputUnicode('Enter a word') : args.join(' ');
         if (!word) {
             // continue;
             return;
@@ -355,12 +351,17 @@ export class MemoryNode {
         await this.save();
     }
 
-    private async scriptAddSeveralWordsWithStress(usageType: null | UsageType) {
-        const wordsString = await getUserInputUnicode('Enter a words with space');
-        if (!wordsString) {
-            return;
+    private async scriptAddSeveralWordsWithStress(usageType: null | UsageType, args: string[]) {
+        let words: string[] = [];
+        if (args.length === 0) {
+            const wordsString = await getUserInputUnicode('Enter a words with space');
+            if (!wordsString) {
+                return;
+            }
+            words = wordsString.split(' ');
+        } else {
+            words = args;
         }
-        const words = wordsString.split(' ');
         const questionString = words.join('\n');
         const textItem = new TextCardItem(questionString);
         const answerArray: CardItem[] = [];

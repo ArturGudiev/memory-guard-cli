@@ -23,6 +23,7 @@ export class CardsService {
   }
 
   async createInteractively(parentNode: MemoryNode, options: any): Promise<Card | null> {
+    const cardId = await META_SERVICE.getNextCardId();
     const questionArray: CardItem[] = [];
     const answerArray: CardItem[] = [];
     const name = await TextCardItem.createInteractively(options.getQuestionTextInTerminal);
@@ -30,9 +31,9 @@ export class CardsService {
       return null;
     }
     questionArray.push(name);
-    await fillCardItemsArray(questionArray, 'Question');
-    await fillCardItemsArray(answerArray, 'Answer');
-    return new Card(await META_SERVICE.getNextCardId(), questionArray, answerArray, [parentNode._id], 0, 0, 0,
+    await fillCardItemsArray(questionArray, 'Question', `Adding question card items for card ${cardId}`);
+    await fillCardItemsArray(answerArray, 'Answer', `Adding answer card item for  ${cardId}`);
+    return new Card(cardId, questionArray, answerArray, [parentNode._id], 0, 0, 0,
       {
         reverseCount: 0,
         practiceCount: 0,
