@@ -23,7 +23,7 @@ import { Card, UsageType } from "./card";
 import { CardItem } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { TextWithHighlightedSymbolCardItem } from "./card-items/text-with-highlighted-symbol";
-import { getActionByCommand, splitOnFirstWordAndArguments } from "../libs/utils-to-lib";
+import { getActionByCommand, printObjectsList, splitOnFirstWordAndArguments } from "../libs/utils-to-lib";
 
 const  MEMORY_NODE_INTERACTIVE_ACTIONS_MAP = {
     UP: ['u'],
@@ -40,6 +40,9 @@ const  MEMORY_NODE_INTERACTIVE_ACTIONS_MAP = {
     APPEND_ALIAS: ['apal'],
     SELECT_CARDS: ['sel', 's'],
     SET_USAGE_TYPE: ['us', 'usage'],
+    ADD_PRIORITY: ['p+', 'add_priority'],
+    SELECT_PRIORITY: ['sp', 'select_priority'],
+    REMOVE_PRIORITY: ['rp', 'remove_priority'],
 }
 
 export type NodeChildren = {[key: string]: number[]};
@@ -81,6 +84,12 @@ async function goToParentHandler(node: MemoryNode) {
     }
 }
 
+export interface NodePriority {
+    name: string;
+    number: number;
+    cards: number[];
+}
+
 export class MemoryNode {
     _id: number;
     name: string;
@@ -88,22 +97,24 @@ export class MemoryNode {
     parents: number[] = [];
     cards: number[] = [];
     aliases: string[] = [];
+    priorities: NodePriority[] = [];
     // views versions verse hierarchy
     
     constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[],
-                aliases: string[]) {
+                aliases: string[], priorities: NodePriority[]) {
         this._id = _id;
         this.name = name;
         this.children = children;
         this.parents = parents;
         this.cards = memoryItems;
         this.aliases = aliases;
+        this.priorities = priorities;
     }
 
     createChildNode() {}
 
     static createFromObj(obj: MemoryNode): MemoryNode {
-        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards, obj.aliases);
+        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards, obj.aliases, obj.priorities ?? []);
     }
 
     async save(): Promise<void> {
@@ -118,14 +129,20 @@ export class MemoryNode {
         return MEMORY_NODES_API_SERVICE.getItems(this.parents);
     }
 
-    async print(usageType: UsageType | null = null, field: 'count' | 'practiceCount' = 'count') {
+    async print(usageType: UsageType | null = null, field: "count" | "practiceCount" = 'count', priority: NodePriority | null) {
         console.log('print', field)
-        const cards = await this.getCards(usageType);
+        const cards = await this.getCards(usageType, priority);
         await printParentsPath(this);
         const aliasesPart = isNil(this.aliases) ? '' : `\t\t${this.aliases}`;
         console.log(chalk.hex(COLOR_LightBrown)(`\n\tMultiVerseNode-${this._id} ${this.name}`), chalk.greenBright(`  ( ${this.cards.length} [${cards.length}] ) \t Usage: ${usageType}`
             + aliasesPart + '\n'
         ));
+
+        if (!priority) {
+            printObjectsList('Priorities', this.priorities, p => `${p.number} ${p.name} ${p.cards.length}`);
+        } else {
+            console.log('\tPriority', priority.name, priority.number )
+        }
         const nodes = await this.getChildMemoryNodes();
         printMemoryNodesWithTitle(nodes);
         printStats(cards, field);
@@ -138,10 +155,11 @@ export class MemoryNode {
 
     async interactive() {
         let usageType: UsageType | null = null;
+        let priority: NodePriority | null = null;
         let field: 'count' | 'practiceCount' = 'count'
         while (true) {
             console.clear();
-            await this.print(usageType, field);
+            await this.print(usageType, field, priority);
             const val = await getUserInputUnicode('Enter memory node command');
             const [command, args] = splitOnFirstWordAndArguments(val);
 
@@ -167,11 +185,20 @@ export class MemoryNode {
                 }
             }
             switch (action) {
+                case "REMOVE_PRIORITY":
+                    priority = null;
+                    break;
+                case 'ADD_PRIORITY':
+                    await this.addPriorityHandler();
+                    break;
                 case 'UP':
                     if (this.parents.length === 0) {
                         continue;
                     }
                     await goToParentHandler(this);
+                    break;
+                case 'SELECT_PRIORITY':
+                    priority = await this.selectPriorityHandler() ?? null;
                     break;
                 case 'EXIT':
                     exit();
@@ -196,6 +223,9 @@ export class MemoryNode {
                     if (card) {
                         CARDS_API_SERVICE.addItem(card);
                         this.cards.push(card._id);
+                        if (priority) {
+                            priority.cards.push(card._id);
+                        }
                         await this.save();
                     }
                     await waitForUserInput();
@@ -210,7 +240,7 @@ export class MemoryNode {
                     await this.scriptAddTextItems(usageType);
                     break;
                 case 'SELECT_CARD':
-                    const cards = await this.getCards(usageType);
+                    const cards = await this.getCards(usageType, priority);
                     const index = await selectIndexFromList(cards.map((c: Card) => c.getOneLineQuestion()));
                     const selectedCard = cards[index];
                     await selectedCard.interactive();
@@ -228,7 +258,7 @@ export class MemoryNode {
                     break;
                 case 'SELECT_CARDS':
                     // selects items and stores them in selectedCard local variable
-                    const cardsByUsageType = await this.getCards(usageType);
+                    const cardsByUsageType = await this.getCards(usageType, priority);
                     const selectedCards = selectCards(cardsByUsageType, args);
                     console.log('============== ', selectedCards.length);
                     console.log(selectedCards.map(c => `${c.getOneLineQuestion()} --- ${c.count}`));
@@ -305,6 +335,11 @@ export class MemoryNode {
         }
 
     }
+
+    private async selectPriorityHandler(): Promise<NodePriority | undefined> {
+        const index = await selectIndexFromList(this.priorities.map(e => `${e.number} ${e.name} (${e.cards.length} card[s])`));
+        return this.priorities[index];
+    }
     async scriptAddTextItems(usageType: string | null) {
         const input = await getUserInputUnicode('Enter 2 items separated by =');
         const items = input.split('=');
@@ -322,8 +357,8 @@ export class MemoryNode {
         
     }
 
-    async getCards(usage: UsageType | null = null): Promise<Card[]> {
-        const cards = await CARDS_API_SERVICE.getItems(this.cards);
+    async getCards(usage: UsageType | null = null, priority: NodePriority | null = null): Promise<Card[]> {
+        const cards = await CARDS_API_SERVICE.getItems(priority ? priority.cards : this.cards);
         return usage === null ? cards : cards.filter((card: Card) => card.usageType === usage);
     }
 
@@ -382,6 +417,22 @@ export class MemoryNode {
         );
         await CARDS_API_SERVICE.addItem(card);
         this.cards.push(card._id);
+        await this.save();
+    }
+
+    private async addPriorityHandler() {
+        const numberInput = await getUserInput('Enter number (Use unique)');
+        if (!Number.isInteger(+numberInput) || this.priorities.map(el => el.number).includes(+numberInput)) {
+            return;
+        }
+        const name = await getUserInput('Enter name');
+        const nodePriority: NodePriority = {
+            name,
+            number: +numberInput,
+            cards: []
+        }
+        this.priorities.push(nodePriority);
+        this.priorities = this.priorities.sort((x, y) => x.number - y.number);
         await this.save();
     }
 }

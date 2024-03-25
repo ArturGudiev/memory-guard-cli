@@ -1,4 +1,5 @@
-import { removeFirstArgument } from "ag-utils-lib";
+import { newline, removeFirstArgument } from "ag-utils-lib";
+import { printInColor } from "../ts-utils/chalk.utils";
 
 export function splitOnFirstWordAndArguments(val: string): [string, string[]] {
   const args = val.split(' ');
@@ -23,4 +24,32 @@ export function getActionByCommand<T extends { [key: string]: string | string[] 
     }
   }
   return null;
+}
+
+
+
+
+export function printList(title: string, items: string[], color?: string): void {
+  if (items.length === 0) {
+    return;
+  }
+  console.log(`\t------${title}------`);
+  newline();
+  items.forEach((el, index) => {
+    if (!color) {
+      console.log(`\t ${index + 1}. ${el}`);
+    } else {
+      printInColor(`\t ${index + 1}. ${el}`, color)
+    }
+
+  });
+  newline();
+}
+
+export function printObjectsList<T>(title: string, items: T[], convertFunction: (el: T) => string, color?: string): void {
+  printList(title, items.map(el => convertFunction(el)), color);
+}
+
+export function printNamedObjectsList<T extends {name: string}>(title: string, items: T[], color?: string): void {
+  printList(title, items.map(el => el.name), color);
 }

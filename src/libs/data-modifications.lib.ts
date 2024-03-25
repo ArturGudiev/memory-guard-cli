@@ -51,7 +51,7 @@ export async function moveCardsFromOneNodeToAnother(fromNodeId: number, toNodeId
   const fromNode = await MEMORY_NODES_API_SERVICE.getItem(fromNodeId);
   const toNode = await MEMORY_NODES_API_SERVICE.getItem(toNodeId);
   if (fromNode && toNode) {
-    const fromNodeCards = await fromNode.getCards();
+    const fromNodeCards = await fromNode.getCards(null);
     // todo make it in 1 step
     fromNodeCards.forEach((card: Card, index: number) => {
       console.log(index, `moving ${card._id}`)

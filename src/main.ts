@@ -3,7 +3,7 @@ import { addTextCardToNode } from "./libs/memory-nodes.lib";
 import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE, USERS_API_SERVICE, } from "./services/contianer";
 
 async function temp() {
-  const node = await MEMORY_NODES_API_SERVICE.getItem(1);
+  const node = await MEMORY_NODES_API_SERVICE.getItem(56);
   // console.log(node);
   await node?.interactive();
 }
