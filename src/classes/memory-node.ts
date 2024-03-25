@@ -84,7 +84,7 @@ async function goToParentHandler(node: MemoryNode) {
     }
 }
 
-export interface NodePriority {
+export interface CardsPriority {
     name: string;
     number: number;
     cards: number[];
@@ -97,11 +97,11 @@ export class MemoryNode {
     parents: number[] = [];
     cards: number[] = [];
     aliases: string[] = [];
-    priorities: NodePriority[] = [];
+    priorities: CardsPriority[] = [];
     // views versions verse hierarchy
     
     constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[],
-                aliases: string[], priorities: NodePriority[]) {
+                aliases: string[], priorities: CardsPriority[]) {
         this._id = _id;
         this.name = name;
         this.children = children;
@@ -129,7 +129,7 @@ export class MemoryNode {
         return MEMORY_NODES_API_SERVICE.getItems(this.parents);
     }
 
-    async print(usageType: UsageType | null = null, field: "count" | "practiceCount" = 'count', priority: NodePriority | null) {
+    async print(usageType: UsageType | null = null, field: "count" | "practiceCount" = 'count', priority: CardsPriority | null) {
         console.log('print', field)
         const cards = await this.getCards(usageType, priority);
         await printParentsPath(this);
@@ -155,7 +155,7 @@ export class MemoryNode {
 
     async interactive() {
         let usageType: UsageType | null = null;
-        let priority: NodePriority | null = null;
+        let priority: CardsPriority | null = null;
         let field: 'count' | 'practiceCount' = 'count'
         while (true) {
             console.clear();
@@ -336,7 +336,7 @@ export class MemoryNode {
 
     }
 
-    private async selectPriorityHandler(): Promise<NodePriority | undefined> {
+    private async selectPriorityHandler(): Promise<CardsPriority | undefined> {
         const index = await selectIndexFromList(this.priorities.map(e => `${e.number} ${e.name} (${e.cards.length} card[s])`));
         return this.priorities[index];
     }
@@ -357,7 +357,7 @@ export class MemoryNode {
         
     }
 
-    async getCards(usage: UsageType | null = null, priority: NodePriority | null = null): Promise<Card[]> {
+    async getCards(usage: UsageType | null = null, priority: CardsPriority | null = null): Promise<Card[]> {
         const cards = await CARDS_API_SERVICE.getItems(priority ? priority.cards : this.cards);
         return usage === null ? cards : cards.filter((card: Card) => card.usageType === usage);
     }
@@ -426,7 +426,7 @@ export class MemoryNode {
             return;
         }
         const name = await getUserInput('Enter name');
-        const nodePriority: NodePriority = {
+        const nodePriority: CardsPriority = {
             name,
             number: +numberInput,
             cards: []
