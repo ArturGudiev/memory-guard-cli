@@ -1,13 +1,13 @@
-import {CardItem} from "../classes/card-items/card-item";
-import {fMap} from "./utils.lib";
+import { CardItem } from "../classes";
+import { fMap } from "./utils.lib";
 import chalk from "chalk";
-import {Card} from "../classes/card";
-import {getUserInput, newline, printWithoutNewLine} from "ag-utils-lib";
-import {htmlNewLine} from "./utils/browser.utils";
-import {TextCardItem} from "../classes/card-items/text-card-item";
-import {ImageCardItem} from "../classes/card-items/image-card-item";
-import {TextWithHighlightedSymbolCardItem} from "../classes/card-items/text-with-highlighted-symbol";
-import {CodeCardItem} from "../classes/card-items/code-card-item";
+import { Card } from "../classes";
+import { getUserInput, newline, printWithoutNewLine } from "ag-utils-lib";
+import { htmlNewLine } from "./utils/browser.utils";
+import { TextCardItem } from "../classes";
+import { ImageCardItem } from "../classes";
+import { TextWithHighlightedSymbolCardItem } from "../classes";
+import { CodeCardItem } from "../classes";
 import { Table } from "console-table-printer";
 import { FormulaCardItem } from "../classes/card-items/formula-card-item";
 
@@ -50,7 +50,7 @@ export async function fillCardItemsArray(cardItems: CardItem[], prefix = '', mes
       }
     }
 
-    if (command === 'x') {
+    if (command === 'x' || command === 'ч') {
       break;
     }
   }

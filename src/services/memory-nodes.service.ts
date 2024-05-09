@@ -1,8 +1,8 @@
-import {equalLowerStrings} from "ag-utils-lib";
-import {MemoryNode} from "../classes";
-import {writeFileSync} from "fs";
-import {some} from "lodash";
-import {MEMORY_NODES_FILE_NAME, META_FILE} from "../constants/files.constant";
+import { equalLowerStrings } from "ag-utils-lib";
+import { MemoryNode } from "../classes";
+import { writeFileSync } from "fs";
+import { some } from "lodash";
+import { MEMORY_NODES_FILE_NAME } from "../constants/files.constant";
 import { MEMORY_NODES_API_SERVICE, META_SERVICE } from "./contianer";
 
 export class MemoryNodesService {
@@ -20,7 +20,7 @@ export class MemoryNodesService {
   async addNewMemoryNodeWithNameAndParents(name: string, parents: MemoryNode[]): Promise<void> {
     const newNodeId = await META_SERVICE.getNextMemoryNodeId();
     const newNode =
-      new MemoryNode(newNodeId, name, [], parents.map(p => p._id), [], [], []);
+      new MemoryNode(newNodeId, name, [], parents.map(p => p._id), [], [], [], []);
     await MEMORY_NODES_API_SERVICE.addItem(newNode);
     parents[0].children.push(newNodeId);
     await parents[0].save();
@@ -52,8 +52,8 @@ export class MemoryNodesService {
   //   return id;
   // }
 
-  private saveAllMemoryNodes(nodes: MemoryNode[]) {
-    writeFileSync(MEMORY_NODES_FILE_NAME, JSON.stringify(nodes, null, '\t'));
-  }
+  // private saveAllMemoryNodes(nodes: MemoryNode[]) {
+  //   writeFileSync(MEMORY_NODES_FILE_NAME, JSON.stringify(nodes, null, '\t'));
+  // }
 
 }

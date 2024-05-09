@@ -27,7 +27,7 @@ import { getActionByCommand, printObjectsList, splitOnFirstWordAndArguments } fr
 
 const  MEMORY_NODE_INTERACTIVE_ACTIONS_MAP = {
     UP: ['u'],
-    EXIT: ['x', 'exit'],
+    EXIT: ['x', 'ч', 'exit'],
     NAVIGATE: ['nav'],
     ADD_MEMORY_NODE: ['n+', 'node+'],
     DELETE: ['del', 'delete'],
@@ -36,6 +36,7 @@ const  MEMORY_NODE_INTERACTIVE_ACTIONS_MAP = {
     ADD_WORD_WITH_STRESS: ['sc_s', 'scs', 'ысы'],
     ADD_SEVERAL_WORDS_WITH_STRESS: ['scs2', 'ысы2'],
     ADD_TEXT_ITEMS: ['tt', 'ее'],
+    NAME_AND_TEXT_IN_EDITOR: ['ne'],
     SELECT_CARD: ['selc'],
     APPEND_ALIAS: ['apal'],
     SELECT_CARDS: ['sel', 's'],
@@ -90,6 +91,11 @@ export interface CardsPriority {
     cards: number[];
 }
 
+export interface CardsGroup {
+    name: string;
+    cards: number[];
+}
+
 export class MemoryNode {
     _id: number;
     name: string;
@@ -98,23 +104,25 @@ export class MemoryNode {
     cards: number[] = [];
     aliases: string[] = [];
     priorities: CardsPriority[] = [];
+    groups: CardsGroup[] = [];
     // views versions verse hierarchy
     
     constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[],
-                aliases: string[], priorities: CardsPriority[]) {
+                aliases: string[], priorities: CardsPriority[], groups: CardsGroup[]) {
         this._id = _id;
         this.name = name;
         this.children = children;
         this.parents = parents;
         this.cards = memoryItems;
         this.aliases = aliases;
-        this.priorities = priorities;
+        this.priorities = priorities ?? [];
+        this.groups = groups ?? [];
     }
 
     createChildNode() {}
 
     static createFromObj(obj: MemoryNode): MemoryNode {
-        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards, obj.aliases, obj.priorities ?? []);
+        return new MemoryNode(obj._id, obj.name, obj.children, obj.parents, obj.cards, obj.aliases, obj.priorities ?? [], obj.groups ?? []);
     }
 
     async save(): Promise<void> {
@@ -143,6 +151,9 @@ export class MemoryNode {
         } else {
             console.log('\tPriority', priority.name, priority.number )
         }
+        if (this.groups) {
+            printObjectsList('Groups', this.groups, p => `${p.name} ${p.cards.length}`);
+        }
         const nodes = await this.getChildMemoryNodes();
         printMemoryNodesWithTitle(nodes);
         printStats(cards, field);
@@ -163,10 +174,6 @@ export class MemoryNode {
             const val = await getUserInputUnicode('Enter memory node command');
             const [command, args] = splitOnFirstWordAndArguments(val);
 
-            // const commandRaw = await getUserInputUnicode('Enter a command');
-            // const commandRaw = await getUserInput('Enter a command');
-            // const command = commandRaw.split(' ')[0];
-            // const commandArgs = removeFirstArgument(commandRaw.split(' '));
             if (!command) {
                 continue;
             }
@@ -185,6 +192,11 @@ export class MemoryNode {
                 }
             }
             switch (action) {
+                case "NAME_AND_TEXT_IN_EDITOR":
+                    const name = args.join(' ');
+                    console.log(name);
+                    await waitForUserInput();
+                    break;
                 case "REMOVE_PRIORITY":
                     priority = null;
                     break;

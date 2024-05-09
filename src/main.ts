@@ -1,17 +1,20 @@
 import { ArgumentParser } from "argparse";
 import { addTextCardToNode } from "./libs/memory-nodes.lib";
-import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE, USERS_API_SERVICE, } from "./services/contianer";
+import { CARDS_API_SERVICE, MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, } from "./services/contianer";
 
 async function temp() {
-  const nodes = await MEMORY_NODES_API_SERVICE.getAllItems();
-  // console.log(node);
-  nodes.forEach(async (e, i) => {
-    console.log(i);
-    if ( !e.priorities ) {
-      e.priorities = [];
-      await e.save();
-    }
-  })
+
+  const node = await MEMORY_NODES_API_SERVICE.getItem(33);
+  if (node) {
+    CARDS_API_SERVICE.getItem(599).then(card => {
+      if (card) {
+        // console.log(card);
+        // CARDS_API_SERVICE.deleteItem(xæjcard);
+      }
+    });
+  }
+
+  console.log(node);
 }
 
 async function main() {

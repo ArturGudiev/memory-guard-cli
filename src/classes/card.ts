@@ -2,8 +2,8 @@ import { exit, getInputFromEditor, getUserInput, tab, waitForUserInput } from "a
 import chalk from "chalk";
 import { printParentsPath } from "../libs/memory-nodes.lib";
 import { IQuizState } from "../libs/quiz.lib";
-import { getInput, newLineConcatStringReducer } from "../libs/utils.lib";
-import { CARDS_API_SERVICE, CARDS_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
+import { newLineConcatStringReducer } from "../libs/utils.lib";
+import { CARDS_API_SERVICE, MEMORY_NODES_API_SERVICE } from "../services/contianer";
 import { CardItem, createCardItemFromObj } from "./card-items/card-item";
 import { TextCardItem } from "./card-items/text-card-item";
 import { MemoryNode } from "./memory-node";
@@ -15,7 +15,7 @@ const CARD_INTERACTIVE_ACTIONS_MAP = {
   PRINT_ANSWER: ['a'],
   BACK: ['u', 'b', 'back'],
   EDIT: ['e', 'edit'],
-  EXIT: ['x', 'exit'],
+  EXIT: ['x', 'ч', 'exit'],
 }
 
 
@@ -169,7 +169,6 @@ export class Card {
   }
 
   async interactive(): Promise<void> {
-    let command;
     while (true) {
       console.clear();
       await this.print();
