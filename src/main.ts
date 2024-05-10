@@ -4,17 +4,8 @@ import { CARDS_API_SERVICE, MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, } fr
 
 async function temp() {
 
-  const node = await MEMORY_NODES_API_SERVICE.getItem(33);
-  if (node) {
-    CARDS_API_SERVICE.getItem(599).then(card => {
-      if (card) {
-        // console.log(card);
-        // CARDS_API_SERVICE.deleteItem(xæjcard);
-      }
-    });
-  }
-
-  console.log(node);
+  const node = await MEMORY_NODES_API_SERVICE.getItem(82);
+  await node?.interactive();
 }
 
 async function main() {

@@ -46,3 +46,10 @@ export async function getInput(message: string): Promise<string> {
     return await getUserInput(message);
   }
 }
+
+// TODO finish it
+// function definedField(fieldName: string) {
+//   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+//     descriptor.get(fieldName);
+//   };
+// }

@@ -1,4 +1,11 @@
-import { exit, getUserInput, getUserInputUnicode, selectIndexFromList, waitForUserInput } from "ag-utils-lib";
+import {
+    exit,
+    getUserInput,
+    getUserInputUnicode,
+    selectIndexFromList,
+    selectObjectFromList,
+    waitForUserInput
+} from "ag-utils-lib";
 import { ArgumentParser } from "argparse";
 import chalk from 'chalk';
 import { isNil } from "lodash";
@@ -37,6 +44,12 @@ const  MEMORY_NODE_INTERACTIVE_ACTIONS_MAP = {
     ADD_SEVERAL_WORDS_WITH_STRESS: ['scs2', 'ысы2'],
     ADD_TEXT_ITEMS: ['tt', 'ее'],
     NAME_AND_TEXT_IN_EDITOR: ['ne'],
+
+    ADD_GROUP: ['g+'],
+    SELECT_GROUP: ['g'],
+    ADD_CARDS_TO_GROUP: ['gc+'],
+    REMOVE_CARD_FROM_GROUP: ['gc-'],
+
     SELECT_CARD: ['selc'],
     APPEND_ALIAS: ['apal'],
     SELECT_CARDS: ['sel', 's'],
@@ -106,7 +119,9 @@ export class MemoryNode {
     priorities: CardsPriority[] = [];
     groups: CardsGroup[] = [];
     // views versions verse hierarchy
-    
+
+    selectedGroup: CardsGroup | null = null;
+
     constructor(_id: number, name: string, children: number[], parents: number[], memoryItems: number[],
                 aliases: string[], priorities: CardsPriority[], groups: CardsGroup[]) {
         this._id = _id;
@@ -152,7 +167,9 @@ export class MemoryNode {
             console.log('\tPriority', priority.name, priority.number )
         }
         if (this.groups) {
-            printObjectsList('Groups', this.groups, p => `${p.name} ${p.cards.length}`);
+            printObjectsList('Groups', this.groups, g =>
+              ` ${g.name} ${g.cards.length}${this.selectedGroup && this.selectedGroup.name === g.name ? [' [SELECTED]'] : ''}`
+            );
         }
         const nodes = await this.getChildMemoryNodes();
         printMemoryNodesWithTitle(nodes);
@@ -173,7 +190,6 @@ export class MemoryNode {
             await this.print(usageType, field, priority);
             const val = await getUserInputUnicode('Enter memory node command');
             const [command, args] = splitOnFirstWordAndArguments(val);
-
             if (!command) {
                 continue;
             }
@@ -192,6 +208,15 @@ export class MemoryNode {
                 }
             }
             switch (action) {
+                case 'ADD_CARDS_TO_GROUP':
+                    await this.addCardsToGroup();
+                    break;
+                case 'ADD_GROUP':
+                    await this.addGroup();
+                    break;
+                case "SELECT_GROUP":
+                    await this.selectGroup(args);
+                    break;
                 case "NAME_AND_TEXT_IN_EDITOR":
                     const name = args.join(' ');
                     console.log(name);
@@ -446,6 +471,60 @@ export class MemoryNode {
         this.priorities.push(nodePriority);
         this.priorities = this.priorities.sort((x, y) => x.number - y.number);
         await this.save();
+    }
+
+    private async addGroup() {
+        const name = await getUserInput('Enter group name');
+        this.groups.push({name, cards: []});
+        await this.save();
+    }
+
+    private async selectGroup(args: string[]) {
+        if (args[0] === '-') {
+            this.selectedGroup = null;
+            return;
+        }
+        if (args.length > 0 && Number.isInteger(Number(args[0]))) {
+            const index = Number(args[0]) - 1;
+            if (index >= 0 && index <= this.groups.length - 1) {
+                this.selectedGroup = this.groups[index];
+                return;
+            }
+        }
+        const index = await selectIndexFromList(this.groups.map(e => `${e.name} ${e.cards.length}`));
+        // todo check ESC case
+        if (index >= 0 && index <= this.groups.length - 1) {
+            this.selectedGroup = this.groups[index];
+        }
+    }
+
+    private async addCardsToGroup() {
+        if (!this.selectedGroup) {
+            return;
+        }
+        const selectedCardsOutsideOfGroup = await this.selectCardsOutsideOfGroup();
+        if (!selectedCardsOutsideOfGroup) {
+            return;
+        }
+        this.selectedGroup.cards.push(selectedCardsOutsideOfGroup._id);
+        this.save();
+    }
+
+
+    private async selectCardsOutsideOfGroup(): Promise<Card | null> {
+        // TODO check it using decorators
+        if (!this.selectedGroup) {
+            return null;
+        }
+        const cardsSet = new Set<number>(this.cards);
+        this.selectedGroup.cards.forEach(cardId => cardsSet.delete(cardId));
+        const cardsToConsider = await CARDS_API_SERVICE.getItems([...cardsSet]);
+        const index = await selectIndexFromList(cardsToConsider.map(e => e.getOneLineQuestion()), )
+        if (index >= 0) {
+            // TODO проверка
+            return cardsToConsider[index];
+        }
+        return null;
     }
 }
 

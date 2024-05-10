@@ -49,9 +49,6 @@ export class Card {
     if (others.reverseCount !== undefined) {
       this.reverseCount = others.reverseCount;
     }
-    // if (others.practiceCount !== undefined) {
-    //   this.practiceCount = others.practiceCount;
-    // }
     if (others.usageType !== undefined) {
       this.usageType = others.usageType;
     }
@@ -120,10 +117,6 @@ export class Card {
 
   async printAnswer() {
     console.log(tab('Answer: '));
-    // if (some(this.answer, item => item.type === CardItemEnum.IMAGE)) {
-    //   const html = getCardItemsInHTML(this.answer);
-    //   await showHTMLInBrowser(html);
-    // }
     this.answer.forEach((cardItem: CardItem) => {
       cardItem.print();
     });
