@@ -1,6 +1,6 @@
-import {User} from "../classes/user";
-import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, USERS_API_SERVICE } from "./contianer";
-import {MemoryNode} from "../classes/memory-node";
+import {User} from "../../classes/user";
+import { MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, USERS_API_SERVICE } from "../contianer";
+import {MemoryNode} from "../../classes/memory-node";
 
 export class UsersService {
 

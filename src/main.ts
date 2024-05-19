@@ -1,11 +1,17 @@
 import { ArgumentParser } from "argparse";
 import { addTextCardToNode } from "./libs/memory-nodes.lib";
-import { CARDS_API_SERVICE, MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, } from "./services/contianer";
+import {
+  CARDS_API_SERVICE,
+  db,
+  MEMORY_NODES_API_SERVICE,
+  MEMORY_NODES_SERVICE,
+  PRACTICE_ITEMS_API_SERVICE,
+} from "./services/contianer";
 
 async function temp() {
-
-  const node = await MEMORY_NODES_API_SERVICE.getItem(82);
-  await node?.interactive();
+  const res = await PRACTICE_ITEMS_API_SERVICE.getItem('8c2bf8bf-04ed-4478-8e6e-bda03d69e29d');
+  // res?.addExample('гёнёнтё 2')
+  // console.log(res);
 }
 
 async function main() {

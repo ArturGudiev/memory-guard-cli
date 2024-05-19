@@ -2,10 +2,10 @@ import { PracticeItem } from "../classes/practice-item";
 import { UUID } from "crypto";
 
 export interface IPracticeItemsService {
-  getPracticeItemByCardId(cardId: number): PracticeItem | null;
-  getPracticeItemById(id: UUID): PracticeItem;
-  savePracticeItem(item: PracticeItem): PracticeItem;    
-  createPracticeItemForCard(cardId: number): PracticeItem;
-  addPracticeItem(item: PracticeItem): void;
+  // getPracticeItemByCardId(cardId: number): PracticeItem | null;
+  // createPracticeItemForCard(cardId: number): Promise<PracticeItem>;
+  // getPracticeItemById(id: UUID): PracticeItem;
+  // savePracticeItem(item: PracticeItem): PracticeItem;
+  // addPracticeItem(item: PracticeItem): void;
 }
 

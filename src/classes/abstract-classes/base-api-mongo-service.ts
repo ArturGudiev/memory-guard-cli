@@ -1,7 +1,7 @@
 import { ApiService, ItemWithId } from "../../interfaces/service-interfaces";
 import { Collection, Db, OptionalUnlessRequiredId } from "mongodb";
 
-export abstract class BaseApiMongoService<T extends ItemWithId<number>> implements ApiService<T> {
+export abstract class BaseApiMongoService<T extends ItemWithId<U>, U = number> implements ApiService<T, U> {
 
   get collection(): Collection<T> {
     return this.db.collection<T>(this.collectionName);
@@ -11,7 +11,7 @@ export abstract class BaseApiMongoService<T extends ItemWithId<number>> implemen
 
   abstract createFromObj(obj: any): T;
 
-  async getItem(id: number): Promise<T | null> {
+  async getItem(id: U): Promise<T | null> {
     const res = await this.collection.findOne({_id: id} as any);
     if (!res) {
       return null;
@@ -19,7 +19,7 @@ export abstract class BaseApiMongoService<T extends ItemWithId<number>> implemen
     return this.createFromObj(res);
   }
 
-  async getItems(ids: number[]): Promise<T[]> {
+  async getItems(ids: U[]): Promise<T[]> {
     const arr = await this.collection.find({_id: {$in: ids} as any}).toArray();
     return arr.map(el => this.createFromObj(el));
   }

@@ -1,6 +1,6 @@
-import { CARDS_API_SERVICE, MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE } from "./contianer";
-import { fillCardItemsArray } from "../libs/cards.lib";
-import { Card, CardItem, MemoryNode, TextCardItem } from "../classes";
+import { CARDS_API_SERVICE, MEMORY_NODES_API_SERVICE, MEMORY_NODES_SERVICE, META_SERVICE } from "../contianer";
+import { fillCardItemsArray } from "../../libs/cards.lib";
+import { Card, CardItem, MemoryNode, TextCardItem } from "../../classes";
 
 export class CardsService {
 

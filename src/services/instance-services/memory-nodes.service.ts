@@ -1,9 +1,9 @@
 import { equalLowerStrings } from "ag-utils-lib";
-import { MemoryNode } from "../classes";
+import { MemoryNode } from "../../classes";
 import { writeFileSync } from "fs";
 import { some } from "lodash";
-import { MEMORY_NODES_FILE_NAME } from "../constants/files.constant";
-import { MEMORY_NODES_API_SERVICE, META_SERVICE } from "./contianer";
+import { MEMORY_NODES_FILE_NAME } from "../../constants/files.constant";
+import { MEMORY_NODES_API_SERVICE, META_SERVICE } from "../contianer";
 
 export class MemoryNodesService {
 

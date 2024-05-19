@@ -1,5 +1,5 @@
 import { waitForUserInput } from "ag-utils-lib";
-import { PRACTICE_ITEMS_SERVICE } from "../services/contianer";
+import { PRACTICE_ITEMS_API_SERVICE } from "../services/contianer";
 
 export class PracticeItem {
     readonly _id: string;
@@ -21,10 +21,15 @@ export class PracticeItem {
 
     
     save() {
-        PRACTICE_ITEMS_SERVICE.savePracticeItem(this); // save or update 
+        PRACTICE_ITEMS_API_SERVICE.updateItem(this); // save or update
     }
 
     static createFromObj(obj: any): PracticeItem {
         return new PracticeItem(obj._id, obj.cardId, obj.baseExamples, obj.examples);
+    }
+
+    async addExample(example: string): Promise<void> {
+        this.examples.push(example);
+        await this.save();
     }
 }

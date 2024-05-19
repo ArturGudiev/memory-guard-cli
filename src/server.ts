@@ -5,7 +5,7 @@ import {
   CARDS_SERVICE, db,
   MEMORY_NODES_API_SERVICE,
   MEMORY_NODES_SERVICE,
-  PRACTICE_ITEMS_SERVICE, USERS_API_SERVICE,
+  PRACTICE_ITEMS_API_SERVICE, USERS_API_SERVICE,
   USERS_SERVICE
 } from './services/contianer';
 import cors from 'cors';
@@ -153,7 +153,7 @@ async function server() {
 //---------cards------------------
 //---------practice-items------------------
         app.get('/practice-item-by-card/:id', function (req: any, res: any) {
-            const practiceItem = PRACTICE_ITEMS_SERVICE.getPracticeItemByCardId(+req.params.id);
+            const practiceItem = PRACTICE_ITEMS_API_SERVICE.getItem(req.params.id);
             res.send(practiceItem);
         });
 

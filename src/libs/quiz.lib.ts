@@ -4,7 +4,7 @@ import {BehaviorSubject, Subject} from "rxjs";
 import {getRandomArrayElement} from "./utils/random.lib";
 import { inTag } from "./utils/browser.utils";
 import {isNil} from "lodash";
-import { PRACTICE_ITEMS_SERVICE } from "../services/contianer";
+import { PRACTICE_ITEMS_API_SERVICE, PRACTICE_ITEMS_SERVICE } from "../services/contianer";
 import { PracticeItem } from "../classes/practice-item";
 import { getInputFromEditor, getUserInputUnicode, waitForUserInput } from "ag-utils-lib";
 import { getInput } from "./utils.lib";
@@ -59,9 +59,6 @@ export async function testCards(cards: Card[], options: ITestOptions = {rightAns
 
 
 export async function practiceTestCards(cards: Card[], options: ITestOptions = {rightAnswersQuantity: 5}): Promise<void> {
-  // prepare originalCounts object
-  // const isTestFinished = () => cards.every(card => isCardFinished(card));
-
   let previousCard: Card | null = null;
   const originalCounts: any = {}; // is needed to check difference
   cards.forEach(card => originalCounts[card._id] = card.practiceCount);
@@ -96,9 +93,9 @@ export async function practiceTestCards(cards: Card[], options: ITestOptions = {
   while (hasUnfinishedCard()) {
     const cardToTest = getNextUnfinishedCard();
     previousCard = cardToTest;
-    let practiceItem = PRACTICE_ITEMS_SERVICE.getPracticeItemByCardId(cardToTest._id);
+    let practiceItem = await PRACTICE_ITEMS_API_SERVICE.getPracticeItemByCardId(cardToTest._id);
     if (!practiceItem) {
-      practiceItem = PRACTICE_ITEMS_SERVICE.createPracticeItemForCard(cardToTest._id);
+      practiceItem = await PRACTICE_ITEMS_SERVICE.createPracticeItemForCard(cardToTest._id);
     }
     await practiceTestCard(cardToTest, practiceItem, getQuizState(cardToTest));
   }
