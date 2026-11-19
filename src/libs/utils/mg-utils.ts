@@ -2,7 +2,7 @@ import { getUserInput, waitForUserInput } from "ag-utils-lib";
 import chalk from "chalk";
 import { Subject } from "rxjs";
 import { getRandomInt } from "./random.lib";
-import { printStringWithHighlightedSymbols } from "../../ts-utils/chalk.utils";
+import { printStringWithHighlightedSymbols } from "../chalk.utils";
 import { reactOnKeysPressed } from "../interaction.lib";
 
 

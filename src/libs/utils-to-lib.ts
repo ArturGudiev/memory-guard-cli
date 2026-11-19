@@ -1,5 +1,5 @@
 import { newline, removeFirstArgument } from "ag-utils-lib";
-import { printInColor } from "../ts-utils/chalk.utils";
+import { printInColor } from "./chalk.utils";
 
 export function splitOnFirstWordAndArguments(val: string): [string, string[]] {
   const args = val.split(' ');

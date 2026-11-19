@@ -19,10 +19,11 @@ import { UsersApiMongoService } from "./api/mongo/users-api-mongo.service";
 import { PracticeItemsApiMongoService } from "./api/mongo/practice-items-api-mongo.service";
 import { PracticeItemsService } from "./instance-services/practice-items";
 
-const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri);
-const dbName = 'memory-guard-v2';
-export const db = client.db(dbName);
+const mongoUri = process.env.MONGO_URI?.trim()
+  || "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
+const mongoDbName = process.env.MONGO_DB?.trim() || "memory-guard-v2";
+const client = new MongoClient(mongoUri);
+export const db = client.db(mongoDbName);
 
 export class Container {
   memoryNodesService: MemoryNodesService;
@@ -38,10 +39,7 @@ export class Container {
   private static instance: Container | null = null;
 
   private constructor() {
-    const uri = "mongodb+srv://arturgudiev:arturgudievpwd@cluster0.5nqc5.mongodb.net/?retryWrites=true&w=majority";
-    const client = new MongoClient(uri);
-    const dbName = 'memory-guard-v2';
-    const db = client.db(dbName);
+    const db = new MongoClient(mongoUri).db(mongoDbName);
 
     this.memoryNodesService = new MemoryNodesService();
     this.cardsService = new CardsService();
