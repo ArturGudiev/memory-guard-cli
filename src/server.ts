@@ -13,6 +13,7 @@ import cors from 'cors';
 import {selectCards} from "./libs/memory-nodes.lib";
 import basicAuth from 'express-basic-auth';
 import { Card, MemoryNode } from "./classes";
+import { CardItem, createCardItemFromObj } from "./classes/card-items/card-item";
 
 async function server() {
         const jsonParser = bodyParser.json()
@@ -149,6 +150,61 @@ async function server() {
             }
             await CARDS_API_SERVICE.updateItem(card);
             res.send(card);
+        });
+
+        app.post('/new-card', async (req: { body: { _id: number, question: any[], answer: any[] } }, res: any) => {
+            try {
+                const { _id, question, answer } = req.body;
+                const node = await MEMORY_NODES_API_SERVICE.getItem(+_id);
+                if (!node) {
+                    res.status(404).send({ error: 'Memory node was not found' });
+                    return;
+                }
+                const toItems = (arr: any[] = []) => arr
+                    .map(item => createCardItemFromObj(item))
+                    .filter(item => item !== null) as CardItem[];
+                const card = await CARDS_SERVICE.createCardByQuestionAndAnswer(
+                    node, toItems(question), toItems(answer), {});
+                await CARDS_API_SERVICE.addItem(card);
+                node.cards.push(card._id);
+                await node.save();
+                res.send(card);
+            } catch (e) {
+                console.error('new-card failed', e);
+                res.status(500).send({ error: 'Failed to create the card' });
+            }
+        });
+
+        app.put('/update-card', async (req: { body: any }, res: any) => {
+            try {
+                const card = Card.createFromObj(req.body);
+                await CARDS_API_SERVICE.updateItem(card);
+                res.send(card);
+            } catch (e) {
+                console.error('update-card failed', e);
+                res.status(500).send({ error: 'Failed to update the card' });
+            }
+        });
+
+        app.post('/delete-cards', async (req: { body: { ids: number[] } }, res: any) => {
+            try {
+                const ids = req.body.ids ?? [];
+                const cards = await CARDS_API_SERVICE.getItems(ids);
+                for (const card of cards) {
+                    await CARDS_API_SERVICE.deleteItem(card);
+                    const parents = await MEMORY_NODES_API_SERVICE.getItems(card.parentNodes);
+                    for (const parent of parents) {
+                        parent.cards = parent.cards.filter((id: number) => id !== card._id);
+                        parent.groups.forEach(g => g.cards = g.cards.filter((id: number) => id !== card._id));
+                        parent.priorities.forEach(p => p.cards = p.cards.filter((id: number) => id !== card._id));
+                        await parent.save();
+                    }
+                }
+                res.send({ deleted: cards.length });
+            } catch (e) {
+                console.error('delete-cards failed', e);
+                res.status(500).send({ error: 'Failed to delete cards' });
+            }
         });
 
 //---------cards------------------
