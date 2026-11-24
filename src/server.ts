@@ -5,13 +5,14 @@ import {
   CARDS_SERVICE, db,
   MEMORY_NODES_API_SERVICE,
   MEMORY_NODES_SERVICE,
+  META_SERVICE,
   PRACTICE_ITEMS_API_SERVICE, USERS_API_SERVICE,
   USERS_SERVICE
 } from './services/contianer';
 import cors from 'cors';
 import {selectCards} from "./libs/memory-nodes.lib";
 import basicAuth from 'express-basic-auth';
-import { Card } from "./classes";
+import { Card, MemoryNode } from "./classes";
 
 async function server() {
         const jsonParser = bodyParser.json()
@@ -195,6 +196,36 @@ async function server() {
         app.get('/memory-node/:id', async (req: any, res: any) => {
             const node = await MEMORY_NODES_API_SERVICE.getItem(+req.params.id);
             res.send(node);
+        });
+
+        app.post('/memory-node/:id/children', async (req: any, res: any) => {
+            const parentId = +req.params.id;
+            const name = String(req.body?.name ?? '').trim();
+            const aliases = Array.isArray(req.body?.aliases)
+                ? req.body.aliases.map((alias: unknown) => String(alias).trim()).filter((alias: string) => alias.length > 0)
+                : [];
+            if (!name) {
+                res.status(400).send({ error: 'Description is required' });
+                return;
+            }
+            const parent = await MEMORY_NODES_API_SERVICE.getItem(parentId);
+            if (!parent) {
+                res.status(404).send({ error: 'Parent node was not found' });
+                return;
+            }
+            for (const alias of aliases) {
+                if (await MEMORY_NODES_SERVICE.isAliasUsed(alias)) {
+                    res.status(409).send({ error: `Alias is already used: ${alias}` });
+                    return;
+                }
+            }
+            const newNodeId = await META_SERVICE.getNextMemoryNodeId();
+            const newNode = new MemoryNode(newNodeId, name, [], [parentId], [], aliases, [], []);
+            await MEMORY_NODES_API_SERVICE.addItem(newNode);
+            parent.children = parent.children ?? [];
+            parent.children.push(newNodeId);
+            await parent.save();
+            res.send(newNode);
         });
 //------------nodes-----------------
 // ---------- users ----------------
